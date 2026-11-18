@@ -1,0 +1,2741 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoNusa - Aplikasi On-Demand Multi-Layanan</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            color: #0f172a;
+            overflow-x: hidden;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        /* Animations */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.8; }
+            100% { transform: scale(2.2); opacity: 0; }
+        }
+        .pulse-marker::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: #10b981;
+            border-radius: 9999px;
+            animation: pulse-ring 1.8s infinite ease-out;
+            z-index: -1;
+        }
+        .fade-in {
+            animation: fadeIn 0.25s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Road Map Grid Pattern */
+        .map-bg {
+            background-color: #e2e8f0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.7) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(255,255,255,0.7) 2px, transparent 2px),
+                linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px);
+            background-size: 80px 80px, 80px 80px, 20px 20px, 20px 20px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-start md:py-6">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full px-4 pointer-events-none"></div>
+
+    <!-- Main App Container (Responsive Mobile/Tablet/Desktop Shell) -->
+    <div class="w-full max-w-5xl bg-white md:rounded-3xl shadow-xl border border-slate-200 overflow-hidden flex flex-col min-h-screen md:min-h-[860px] relative">
+        
+        <!-- Top Header Navigation -->
+        <header class="bg-emerald-600 text-white px-4 sm:px-6 py-4 flex items-center justify-between sticky top-0 z-30 shadow-md">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
+                <div id="brand-logo-container" class="w-10 h-10 rounded-2xl bg-white text-emerald-600 flex items-center justify-center font-extrabold text-xl shadow-sm overflow-hidden shrink-0">
+                    <i id="brand-logo-icon" class="fa-solid fa-bolt"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 id="brand-app-name" class="font-extrabold text-lg tracking-tight leading-none">GoNusa</h1>
+                        <span id="brand-app-badge" class="text-[10px] bg-emerald-800/60 px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider">SuperApp</span>
+                    </div>
+                    <p class="text-xs text-emerald-100 mt-0.5" id="header-greeting">Halo, Budi Santoso</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Active Order Quick Pill -->
+                <button id="active-order-pill" onclick="openTrackingModal()" class="hidden items-center gap-2 bg-amber-400 text-slate-900 px-3 py-1.5 rounded-full text-xs font-bold shadow animate-pulse hover:bg-amber-300 transition">
+                    <i class="fa-solid fa-motorcycle"></i>
+                    <span id="active-order-pill-text">1 Pesanan Aktif</span>
+                </button>
+
+                <!-- Quick Saved Location Selector -->
+                <button onclick="switchTab('profile')" class="bg-emerald-700/70 hover:bg-emerald-700 px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-location-dot text-emerald-300"></i>
+                    <span id="header-active-address" class="max-w-[110px] sm:max-w-[160px] truncate">Rumah (Jl. Sudirman)</span>
+                </button>
+
+                <!-- Admin Panel Button -->
+                <button onclick="openAdminModal()" title="Pengaturan Admin & Database" class="bg-emerald-900/70 hover:bg-emerald-900 border border-emerald-400/40 px-2.5 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition shadow-sm">
+                    <i class="fa-solid fa-sliders text-amber-300"></i>
+                    <span class="hidden sm:inline">Admin</span>
+                </button>
+
+                <!-- Profile Avatar -->
+                <button onclick="switchTab('profile')" class="w-9 h-9 rounded-full bg-emerald-800 border-2 border-emerald-300 flex items-center justify-center font-bold text-sm hover:scale-105 transition" id="header-avatar">
+                    BS
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 pb-24 overflow-y-auto">
+            
+            <!-- ==================== TAB 1: HOME (BERANDA) ==================== -->
+            <section id="tab-home" class="p-4 sm:p-6 space-y-6 fade-in">
+                
+                <!-- E-Wallet (GoPay Style) Bar -->
+                <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 text-white rounded-2xl p-4 sm:p-5 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-400 text-xl">
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs uppercase tracking-wider text-slate-300 font-semibold">NusaPay</span>
+                                <span class="text-[11px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-medium">Aktif</span>
+                            </div>
+                            <p class="text-2xl font-extrabold tracking-tight mt-0.5" id="home-wallet-balance">Rp 250.000</p>
+                            <button onclick="switchTab('wallet')" class="text-xs text-emerald-400 hover:underline flex items-center gap-1 mt-0.5">
+                                Klik untuk riwayat transaksi <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 w-full sm:w-auto border-t sm:border-t-0 border-slate-700/70 pt-3 sm:pt-0">
+                        <button onclick="openTopUpModal()" class="flex flex-col items-center justify-center bg-white/10 hover:bg-white/20 px-4 py-2.5 rounded-xl transition">
+                            <i class="fa-solid fa-plus-circle text-emerald-400 text-lg mb-1"></i>
+                            <span class="text-xs font-semibold">Isi Saldo</span>
+                        </button>
+                        <button onclick="switchTab('wallet')" class="flex flex-col items-center justify-center bg-white/10 hover:bg-white/20 px-4 py-2.5 rounded-xl transition">
+                            <i class="fa-solid fa-clock-rotate-left text-sky-400 text-lg mb-1"></i>
+                            <span class="text-xs font-semibold">Riwayat</span>
+                        </button>
+                        <button onclick="switchTab('promo')" class="flex flex-col items-center justify-center bg-white/10 hover:bg-white/20 px-4 py-2.5 rounded-xl transition relative">
+                            <i class="fa-solid fa-ticket text-amber-400 text-lg mb-1"></i>
+                            <span class="text-xs font-semibold">Voucher</span>
+                            <span class="absolute top-1.5 right-2 w-2 h-2 rounded-full bg-amber-400"></span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Core Services Grid -->
+                <div>
+                    <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Layanan Utama</h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                        <!-- GoRide -->
+                        <button onclick="openService('ride')" class="group bg-white hover:bg-emerald-50/60 border border-slate-200 hover:border-emerald-400 rounded-2xl p-4 flex flex-col items-center text-center shadow-sm hover:shadow transition">
+                            <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition">
+                                <i class="fa-solid fa-motorcycle"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-sm sm:text-base">NusaRide</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Ojek motor cepat & hemat</p>
+                        </button>
+
+                        <!-- GoCar -->
+                        <button onclick="openService('car')" class="group bg-white hover:bg-sky-50/60 border border-slate-200 hover:border-sky-400 rounded-2xl p-4 flex flex-col items-center text-center shadow-sm hover:shadow transition">
+                            <div class="w-14 h-14 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition">
+                                <i class="fa-solid fa-car-side"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-sm sm:text-base">NusaCar</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Mobil nyaman s/d 6 orang</p>
+                        </button>
+
+                        <!-- GoFood -->
+                        <button onclick="openService('food')" class="group bg-white hover:bg-rose-50/60 border border-slate-200 hover:border-rose-400 rounded-2xl p-4 flex flex-col items-center text-center shadow-sm hover:shadow transition relative">
+                            <span class="absolute top-3 right-3 bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">PROMO</span>
+                            <div class="w-14 h-14 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition">
+                                <i class="fa-solid fa-utensils"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-sm sm:text-base">NusaFood</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Pesan kuliner favoritmu</p>
+                        </button>
+
+                        <!-- GoSend -->
+                        <button onclick="openService('send')" class="group bg-white hover:bg-amber-50/60 border border-slate-200 hover:border-amber-400 rounded-2xl p-4 flex flex-col items-center text-center shadow-sm hover:shadow transition">
+                            <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition">
+                                <i class="fa-solid fa-box-open"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-sm sm:text-base">NusaSend</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Kirim paket instan & aman</p>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Active Order Banner (Shown if there is an active order) -->
+                <div id="home-active-order-card" class="hidden bg-emerald-50 border-2 border-emerald-500 rounded-2xl p-4 shadow-sm">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-xl shrink-0">
+                                <i id="home-active-icon" class="fa-solid fa-motorcycle"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-700" id="home-active-service">NusaRide</span>
+                                    <span class="text-xs bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded-full font-semibold" id="home-active-status">Driver Menuju Lokasi</span>
+                                </div>
+                                <p class="font-bold text-slate-800 text-sm mt-0.5" id="home-active-route">Rumah → Kantor Pusat</p>
+                                <p class="text-xs text-slate-600" id="home-active-driver">Mitra: Hendra Wijaya • B 4821 KZL</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 w-full sm:w-auto">
+                            <button onclick="openTrackingModal()" class="flex-1 sm:flex-initial bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-map-location-dot"></i> Lacak & Chat
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Promo & Voucher Highlight -->
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider">Promo Spesial Hari Ini</h2>
+                        <button onclick="switchTab('promo')" class="text-xs font-bold text-emerald-600 hover:underline">Lihat Semua</button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3" id="home-promo-list">
+                        <!-- Rendered via JS -->
+                    </div>
+                </div>
+
+                <!-- Popular Food Recommendations on Home -->
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider">Kuliner Terlaris di Sekitarmu</h2>
+                        <button onclick="openService('food')" class="text-xs font-bold text-emerald-600 hover:underline">Jelajahi NusaFood</button>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="home-food-preview">
+                        <!-- Rendered via JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== SERVICE VIEW: RIDE & CAR ==================== -->
+            <section id="view-transport" class="hidden p-4 sm:p-6 space-y-5 fade-in">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                    <div class="flex items-center gap-3">
+                        <button onclick="switchTab('home')" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
+                        <div>
+                            <h2 class="font-extrabold text-lg text-slate-800" id="transport-title">Pesan NusaRide / NusaCar</h2>
+                            <p class="text-xs text-slate-500">Pilih lokasi jemput, tujuan, dan armada pilihanmu</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Left Form -->
+                    <div class="lg:col-span-7 space-y-4">
+                        <!-- Pickup & Destination Box -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                            <div>
+                                <label class="text-xs font-bold text-slate-500 uppercase flex items-center justify-between mb-1">
+                                    <span><i class="fa-solid fa-circle-dot text-emerald-600 mr-1"></i> Titik Penjemputan</span>
+                                    <span class="text-[11px] text-emerald-600 font-semibold">Pilih dari Alamat Tersimpan</span>
+                                </label>
+                                <select id="transport-pickup" onchange="calculateTransportPrice()" class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-medium focus:outline-none focus:border-emerald-500">
+                                    <!-- Populated from saved addresses -->
+                                </select>
+                            </div>
+
+                            <div class="border-t border-dashed border-slate-300 pt-3">
+                                <label class="text-xs font-bold text-slate-500 uppercase flex items-center justify-between mb-1">
+                                    <span><i class="fa-solid fa-location-dot text-rose-500 mr-1"></i> Lokasi Tujuan</span>
+                                </label>
+                                <select id="transport-destination" onchange="calculateTransportPrice()" class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-medium focus:outline-none focus:border-emerald-500">
+                                    <option value="Stasiun MRT Dukuh Atas|4.2">Stasiun MRT Dukuh Atas (4.2 km)</option>
+                                    <option value="Grand Indonesia Mall|5.8">Grand Indonesia Mall (5.8 km)</option>
+                                    <option value="Kantor Pusat SCBD|7.5">Kantor Pusat SCBD (7.5 km)</option>
+                                    <option value="Kampus Universitas Indonesia|14.0">Kampus Universitas Indonesia (14.0 km)</option>
+                                    <option value="Bandara Soekarno-Hatta|26.5">Bandara Soekarno-Hatta (26.5 km)</option>
+                                </select>
+                                <input type="text" id="transport-custom-note" placeholder="Catatan titik jemput (opsional, misal: dekat pos satpam)" class="mt-2 w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-emerald-500">
+                            </div>
+                        </div>
+
+                        <!-- Fleet Selection -->
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 uppercase block mb-2">Pilih Armada</label>
+                            <div class="space-y-2.5" id="transport-fleet-options">
+                                <!-- GoRide -->
+                                <div onclick="selectFleet('ride')" id="fleet-card-ride" class="cursor-pointer border-2 border-emerald-500 bg-emerald-50/40 rounded-2xl p-3.5 flex items-center justify-between transition">
+                                    <div class="flex items-center gap-3.5">
+                                        <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl">
+                                            <i class="fa-solid fa-motorcycle"></i>
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <h4 class="font-bold text-slate-800 text-sm">NusaRide</h4>
+                                                <span class="text-[11px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full font-medium"><i class="fa-solid fa-user text-[9px]"></i> 1 Penumpang</span>
+                                            </div>
+                                            <p class="text-xs text-slate-500 mt-0.5">Estimasi tiba 3-5 menit • Bebas macet</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="font-extrabold text-slate-800 text-sm" id="price-display-ride">Rp 14.000</p>
+                                        <span class="text-[11px] text-emerald-600 font-semibold" id="eta-display-ride">~12 mnt</span>
+                                    </div>
+                                </div>
+
+                                <!-- GoCar Regular -->
+                                <div onclick="selectFleet('car')" id="fleet-card-car" class="cursor-pointer border border-slate-200 hover:border-slate-300 bg-white rounded-2xl p-3.5 flex items-center justify-between transition">
+                                    <div class="flex items-center gap-3.5">
+                                        <div class="w-12 h-12 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center text-xl">
+                                            <i class="fa-solid fa-car-side"></i>
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <h4 class="font-bold text-slate-800 text-sm">NusaCar</h4>
+                                                <span class="text-[11px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full font-medium"><i class="fa-solid fa-user-group text-[9px]"></i> 4 Penumpang</span>
+                                            </div>
+                                            <p class="text-xs text-slate-500 mt-0.5">Estimasi tiba 5-8 menit • Nyaman ber-AC</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="font-extrabold text-slate-800 text-sm" id="price-display-car">Rp 28.000</p>
+                                        <span class="text-[11px] text-sky-600 font-semibold" id="eta-display-car">~18 mnt</span>
+                                    </div>
+                                </div>
+
+                                <!-- GoCar XL -->
+                                <div onclick="selectFleet('carxl')" id="fleet-card-carxl" class="cursor-pointer border border-slate-200 hover:border-slate-300 bg-white rounded-2xl p-3.5 flex items-center justify-between transition">
+                                    <div class="flex items-center gap-3.5">
+                                        <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl">
+                                            <i class="fa-solid fa-van-shuttle"></i>
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <h4 class="font-bold text-slate-800 text-sm">NusaCar XL</h4>
+                                                <span class="text-[11px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full font-medium"><i class="fa-solid fa-users text-[9px]"></i> 6 Penumpang</span>
+                                            </div>
+                                            <p class="text-xs text-slate-500 mt-0.5">Kabin luas untuk keluarga & bagasi</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="font-extrabold text-slate-800 text-sm" id="price-display-carxl">Rp 38.000</p>
+                                        <span class="text-[11px] text-indigo-600 font-semibold" id="eta-display-carxl">~20 mnt</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Summary & Checkout -->
+                    <div class="lg:col-span-5 space-y-4">
+                        <!-- Mini Route Preview Map -->
+                        <div class="map-bg rounded-2xl h-44 border border-slate-200 relative overflow-hidden flex items-center justify-center p-4">
+                            <svg class="w-full h-full" viewBox="0 0 300 120">
+                                <path d="M 35 90 Q 140 20 265 40" fill="none" stroke="#10b981" stroke-width="4" stroke-dasharray="6,6"/>
+                                <circle cx="35" cy="90" r="8" fill="#059669" />
+                                <circle cx="265" cy="40" r="8" fill="#e11d48" />
+                            </svg>
+                            <div class="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur px-3 py-2 rounded-xl shadow-sm flex items-center justify-between text-xs">
+                                <span class="font-semibold text-slate-700"><i class="fa-solid fa-route text-emerald-600 mr-1"></i> Jarak Tempuh: <strong id="transport-distance-label">4.2 km</strong></span>
+                                <span class="text-emerald-700 font-bold" id="transport-time-label">~12 Menit</span>
+                            </div>
+                        </div>
+
+                        <!-- Payment & Promo Box -->
+                        <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-sm">
+                            <h3 class="font-bold text-sm text-slate-800">Metode Pembayaran & Promo</h3>
+                            
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="setPaymentMethod('wallet')" id="pay-btn-wallet" class="border-2 border-emerald-500 bg-emerald-50/50 rounded-xl p-2.5 text-left transition">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs font-bold text-slate-800"><i class="fa-solid fa-wallet text-emerald-600 mr-1"></i> NusaPay</span>
+                                        <i class="fa-solid fa-circle-check text-emerald-600 text-xs"></i>
+                                    </div>
+                                    <p class="text-[11px] text-slate-500 mt-0.5" id="transport-wallet-bal">Saldo: Rp 250.000</p>
+                                </button>
+                                <button onclick="setPaymentMethod('cash')" id="pay-btn-cash" class="border border-slate-200 bg-white rounded-xl p-2.5 text-left transition">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs font-bold text-slate-800"><i class="fa-solid fa-money-bill-wave text-emerald-600 mr-1"></i> Tunai</span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-500 mt-0.5">Bayar langsung ke driver</p>
+                                </button>
+                            </div>
+
+                            <!-- Voucher Selector -->
+                            <div>
+                                <label class="text-xs font-semibold text-slate-500 block mb-1">Kode Promo / Voucher</label>
+                                <select id="transport-promo-select" onchange="calculateTransportPrice()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700">
+                                    <option value="NONE">Tidak pakai promo</option>
+                                    <option value="HEMAT50">HEMAT50 - Diskon 50% (Maks Rp 15.000)</option>
+                                    <option value="JALANTERUS">JALANTERUS - Potongan Rp 10.000</option>
+                                </select>
+                            </div>
+
+                            <!-- Price Breakdown -->
+                            <div class="border-t border-slate-100 pt-3 space-y-1.5 text-xs">
+                                <div class="flex justify-between text-slate-600">
+                                    <span>Tarif Perjalanan</span>
+                                    <span id="transport-base-fare">Rp 14.000</span>
+                                </div>
+                                <div class="flex justify-between text-slate-600">
+                                    <span>Biaya Jasa Aplikasi</span>
+                                    <span>Rp 2.000</span>
+                                </div>
+                                <div class="flex justify-between text-emerald-600 font-semibold" id="transport-discount-row">
+                                    <span>Diskon Promo</span>
+                                    <span id="transport-discount-amount">-Rp 0</span>
+                                </div>
+                                <div class="flex justify-between text-base font-extrabold text-slate-900 pt-2 border-t border-slate-200">
+                                    <span>Total Bayar</span>
+                                    <span id="transport-final-price">Rp 16.000</span>
+                                </div>
+                            </div>
+
+                            <button onclick="submitTransportOrder()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow-md hover:shadow-lg transition flex items-center justify-center gap-2 text-sm">
+                                <i class="fa-solid fa-paper-plane"></i> Pesan Sekarang
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== SERVICE VIEW: FOOD DELIVERY (GOFOOD) ==================== -->
+            <section id="view-food" class="hidden p-4 sm:p-6 space-y-5 fade-in">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
+                    <div class="flex items-center gap-3">
+                        <button onclick="switchTab('home')" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
+                        <div>
+                            <h2 class="font-extrabold text-lg text-slate-800">NusaFood - Pesan Antar Makanan</h2>
+                            <p class="text-xs text-slate-500">Pilih restoran favorit, tambah ke keranjang & tulis catatan khusus</p>
+                        </div>
+                    </div>
+
+                    <!-- Search Bar -->
+                    <div class="relative w-full sm:w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-2.5 text-slate-400 text-xs"></i>
+                        <input type="text" id="food-search" oninput="renderRestaurants()" placeholder="Cari ayam, kopi, burger..." class="w-full bg-slate-100 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs focus:outline-none focus:bg-white focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <!-- Category Pills -->
+                <div class="flex items-center gap-2 overflow-x-auto pb-1">
+                    <button onclick="setFoodCategory('all')" id="food-cat-all" class="food-cat-btn bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-full shrink-0 transition">Semua Resto</button>
+                    <button onclick="setFoodCategory('Terdekat')" id="food-cat-Terdekat" class="food-cat-btn bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition"><i class="fa-solid fa-location-arrow mr-1 text-emerald-600"></i> Terdekat</button>
+                    <button onclick="setFoodCategory('Terlaris')" id="food-cat-Terlaris" class="food-cat-btn bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition"><i class="fa-solid fa-fire mr-1 text-amber-500"></i> Terlaris</button>
+                    <button onclick="setFoodCategory('Promo')" id="food-cat-Promo" class="food-cat-btn bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition"><i class="fa-solid fa-tags mr-1 text-rose-500"></i> Lagi Promo</button>
+                </div>
+
+                <!-- Restaurant Catalog Grid -->
+                <div id="restaurant-list" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Populated via JS -->
+                </div>
+
+                <!-- Selected Restaurant Menu & Cart Area -->
+                <div id="restaurant-menu-section" class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
+                        <div>
+                            <span class="text-[11px] font-bold uppercase text-rose-600 bg-rose-100 px-2.5 py-0.5 rounded-full" id="active-resto-badge">Terlaris</span>
+                            <h3 class="text-lg font-extrabold text-slate-800 mt-1" id="active-resto-name">Nama Restoran</h3>
+                            <p class="text-xs text-slate-500" id="active-resto-meta">★ 4.8 • Jarak 1.2 km • Ongkir Rp 8.000</p>
+                        </div>
+                        <button onclick="clearCart()" class="text-xs text-rose-600 hover:underline self-start sm:self-center"><i class="fa-solid fa-trash-can mr-1"></i> Kosongkan Keranjang</button>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <!-- Menu Items -->
+                        <div class="lg:col-span-7 space-y-3" id="active-resto-menus">
+                            <!-- Populated via JS -->
+                        </div>
+
+                        <!-- Cart & Checkout Box -->
+                        <div class="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-sm h-fit">
+                            <h4 class="font-bold text-sm text-slate-800 flex items-center justify-between">
+                                <span><i class="fa-solid fa-basket-shopping text-rose-500 mr-1.5"></i> Keranjang Pesanan</span>
+                                <span class="text-xs bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full font-bold" id="cart-count-badge">0 Item</span>
+                            </h4>
+
+                            <div id="cart-items-list" class="space-y-2 max-h-52 overflow-y-auto pr-1 text-xs">
+                                <p class="text-slate-400 italic py-4 text-center">Belum ada menu yang dipilih.</p>
+                            </div>
+
+                            <!-- Special Notes for Restaurant -->
+                            <div>
+                                <label class="text-xs font-semibold text-slate-600 block mb-1">Catatan Khusus Restoran</label>
+                                <input type="text" id="food-special-note" placeholder="Contoh: Tidak pedas, pisahkan sambal, alat makan..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500">
+                            </div>
+
+                            <!-- Delivery Address -->
+                            <div>
+                                <label class="text-xs font-semibold text-slate-600 block mb-1">Antar ke Alamat</label>
+                                <select id="food-delivery-address" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium">
+                                    <!-- Populated from saved addresses -->
+                                </select>
+                            </div>
+
+                            <!-- Promo & Payment -->
+                            <div class="grid grid-cols-2 gap-2 pt-1">
+                                <div>
+                                    <label class="text-[11px] font-semibold text-slate-500 block mb-1">Bayar Pakai</label>
+                                    <select id="food-payment-method" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-semibold">
+                                        <option value="wallet">NusaPay (Dompet)</option>
+                                        <option value="cash">Tunai (COD)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-[11px] font-semibold text-slate-500 block mb-1">Voucher Promo</label>
+                                    <select id="food-promo-select" onchange="updateCartUI()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-semibold">
+                                        <option value="NONE">Tanpa Promo</option>
+                                        <option value="KULINER20">KULINER20 (-Rp 20.000)</option>
+                                        <option value="GRATISONGKIR">GRATISONGKIR (-Rp 8.000)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="border-t border-slate-100 pt-2.5 space-y-1 text-xs">
+                                <div class="flex justify-between text-slate-600">
+                                    <span>Subtotal Makanan</span>
+                                    <span id="food-subtotal">Rp 0</span>
+                                </div>
+                                <div class="flex justify-between text-slate-600">
+                                    <span>Ongkos Kirim & Layanan</span>
+                                    <span id="food-delivery-fee">Rp 10.000</span>
+                                </div>
+                                <div class="flex justify-between text-emerald-600 font-semibold">
+                                    <span>Potongan Voucher</span>
+                                    <span id="food-discount">-Rp 0</span>
+                                </div>
+                                <div class="flex justify-between text-sm font-extrabold text-slate-900 pt-1.5 border-t border-slate-200">
+                                    <span>Total Pembayaran</span>
+                                    <span id="food-total">Rp 0</span>
+                                </div>
+                            </div>
+
+                            <button onclick="submitFoodOrder()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl shadow transition flex items-center justify-center gap-2 text-sm">
+                                <i class="fa-solid fa-utensils"></i> Pesan & Antar Sekarang
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== SERVICE VIEW: COURIER (GOSEND) ==================== -->
+            <section id="view-send" class="hidden p-4 sm:p-6 space-y-5 fade-in">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                    <div class="flex items-center gap-3">
+                        <button onclick="switchTab('home')" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
+                        <div>
+                            <h2 class="font-extrabold text-lg text-slate-800">NusaSend - Kirim Barang & Dokumen</h2>
+                            <p class="text-xs text-slate-500">Isi detail pengirim, penerima, dan ukuran paket</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Left Sender & Receiver Details -->
+                    <div class="lg:col-span-7 space-y-4">
+                        <!-- Pengirim -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                            <h3 class="text-xs font-extrabold uppercase tracking-wider text-emerald-700 flex items-center gap-1.5">
+                                <i class="fa-solid fa-circle-arrow-up"></i> Detail Pengirim
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-[11px] font-semibold text-slate-600 block mb-1">Nama Pengirim</label>
+                                    <input type="text" id="send-sender-name" value="Budi Santoso" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium">
+                                </div>
+                                <div>
+                                    <label class="text-[11px] font-semibold text-slate-600 block mb-1">No. HP Pengirim</label>
+                                    <input type="text" id="send-sender-phone" value="0812-3456-7890" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-[11px] font-semibold text-slate-600 block mb-1">Alamat Penjemputan Paket</label>
+                                <select id="send-sender-address" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium">
+                                    <!-- Populated from saved addresses -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Penerima -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                            <h3 class="text-xs font-extrabold uppercase tracking-wider text-amber-700 flex items-center gap-1.5">
+                                <i class="fa-solid fa-circle-arrow-down"></i> Detail Penerima
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-[11px] font-semibold text-slate-600 block mb-1">Nama Penerima *</label>
+                                    <input type="text" id="send-receiver-name" placeholder="Contoh: Rina Amelia" value="Rina Amelia" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium">
+                                </div>
+                                <div>
+                                    <label class="text-[11px] font-semibold text-slate-600 block mb-1">No. HP Penerima *</label>
+                                    <input type="text" id="send-receiver-phone" placeholder="Contoh: 0813-9876-5432" value="0813-9876-5432" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-[11px] font-semibold text-slate-600 block mb-1">Alamat Tujuan Pengiriman *</label>
+                                <input type="text" id="send-receiver-address" value="Gedung Cyber Lt. 5, Kuningan, Jakarta Selatan" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium">
+                            </div>
+                            <div>
+                                <label class="text-[11px] font-semibold text-slate-600 block mb-1">Jenis Barang / Instruksi Kurir</label>
+                                <input type="text" id="send-item-desc" value="Dokumen Kontrak & Merchandise (Jangan ditekuk)" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Package Size & Price Calculation -->
+                    <div class="lg:col-span-5 space-y-4">
+                        <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-4 shadow-sm">
+                            <div>
+                                <label class="text-xs font-bold text-slate-700 uppercase block mb-2">Ukuran / Berat Paket</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button onclick="selectSendSize('small', 15000)" id="send-size-small" class="send-size-btn border-2 border-amber-500 bg-amber-50/50 rounded-xl p-2.5 text-center transition">
+                                        <i class="fa-solid fa-envelope-open-text text-amber-600 text-lg mb-1"></i>
+                                        <p class="text-xs font-bold text-slate-800">Kecil</p>
+                                        <p class="text-[10px] text-slate-500">Maks 5 kg</p>
+                                    </button>
+                                    <button onclick="selectSendSize('medium', 22000)" id="send-size-medium" class="send-size-btn border border-slate-200 bg-white rounded-xl p-2.5 text-center transition">
+                                        <i class="fa-solid fa-box text-amber-600 text-lg mb-1"></i>
+                                        <p class="text-xs font-bold text-slate-800">Sedang</p>
+                                        <p class="text-[10px] text-slate-500">Maks 15 kg</p>
+                                    </button>
+                                    <button onclick="selectSendSize('large', 35000)" id="send-size-large" class="send-size-btn border border-slate-200 bg-white rounded-xl p-2.5 text-center transition">
+                                        <i class="fa-solid fa-boxes-stacked text-amber-600 text-lg mb-1"></i>
+                                        <p class="text-xs font-bold text-slate-800">Besar</p>
+                                        <p class="text-[10px] text-slate-500">Maks 20 kg</p>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="text-xs font-bold text-slate-700 uppercase block mb-2">Kecepatan Pengiriman</label>
+                                <select id="send-speed-type" onchange="calculateSendPrice()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-semibold">
+                                    <option value="instant">Instant Courier (Tiba dalam 1-2 Jam) - +Rp 5.000</option>
+                                    <option value="sameday">Same Day (Tiba di Hari yang Sama) - Hemat</option>
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="text-[11px] font-semibold text-slate-500 block mb-1">Metode Bayar</label>
+                                    <select id="send-payment-method" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-semibold">
+                                        <option value="wallet">NusaPay</option>
+                                        <option value="cash">Tunai</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-[11px] font-semibold text-slate-500 block mb-1">Promo Kurir</label>
+                                    <select id="send-promo-select" onchange="calculateSendPrice()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-semibold">
+                                        <option value="NONE">Tanpa Promo</option>
+                                        <option value="KIRIMHEMAT">KIRIMHEMAT (-Rp 8.000)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="border-t border-slate-100 pt-3 space-y-1.5 text-xs">
+                                <div class="flex justify-between text-slate-600">
+                                    <span>Biaya Pengiriman Paket</span>
+                                    <span id="send-base-price">Rp 20.000</span>
+                                </div>
+                                <div class="flex justify-between text-slate-600">
+                                    <span>Asuransi Pengiriman Aman</span>
+                                    <span>Rp 2.000</span>
+                                </div>
+                                <div class="flex justify-between text-emerald-600 font-semibold">
+                                    <span>Potongan Promo</span>
+                                    <span id="send-discount">-Rp 0</span>
+                                </div>
+                                <div class="flex justify-between text-base font-extrabold text-slate-900 pt-2 border-t border-slate-200">
+                                    <span>Total Ongkos Kirim</span>
+                                    <span id="send-total-price">Rp 22.000</span>
+                                </div>
+                            </div>
+
+                            <button onclick="submitSendOrder()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold py-3 rounded-xl shadow transition flex items-center justify-center gap-2 text-sm">
+                                <i class="fa-solid fa-truck-fast"></i> Panggil Kurir NusaSend
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== TAB 2: PROMO & VOUCHER ==================== -->
+            <section id="tab-promo" class="hidden p-4 sm:p-6 space-y-5 fade-in">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
+                    <div>
+                        <h2 class="font-extrabold text-lg text-slate-800">Voucher & Kode Promo</h2>
+                        <p class="text-xs text-slate-500">Gunakan voucher di bawah ini saat checkout transportasi, makanan, atau kurir</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="custom-promo-input" placeholder="Punya kode promo? Ketik di sini" class="bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs uppercase font-semibold focus:outline-none focus:border-emerald-500">
+                        <button onclick="claimPromoCode()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition">Klaim</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="promo-full-list">
+                    <!-- Populated via JS -->
+                </div>
+            </section>
+
+            <!-- ==================== TAB 3: PESANAN & RIWAYAT ==================== -->
+            <section id="tab-orders" class="hidden p-4 sm:p-6 space-y-5 fade-in">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                    <div>
+                        <h2 class="font-extrabold text-lg text-slate-800">Aktivitas & Riwayat Pesanan</h2>
+                        <p class="text-xs text-slate-500">Pantau pesanan aktif, lihat riwayat selesai, dan berikan rating</p>
+                    </div>
+                </div>
+
+                <!-- Filter Status Tabs -->
+                <div class="flex gap-2">
+                    <button onclick="filterOrders('all')" id="order-tab-all" class="order-filter-btn bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-full">Semua</button>
+                    <button onclick="filterOrders('active')" id="order-tab-active" class="order-filter-btn bg-slate-100 text-slate-700 text-xs font-semibold px-4 py-2 rounded-full">Dalam Proses</button>
+                    <button onclick="filterOrders('completed')" id="order-tab-completed" class="order-filter-btn bg-slate-100 text-slate-700 text-xs font-semibold px-4 py-2 rounded-full">Selesai</button>
+                    <button onclick="filterOrders('cancelled')" id="order-tab-cancelled" class="order-filter-btn bg-slate-100 text-slate-700 text-xs font-semibold px-4 py-2 rounded-full">Dibatalkan</button>
+                </div>
+
+                <!-- Orders List -->
+                <div id="orders-history-list" class="space-y-3">
+                    <!-- Populated via JS -->
+                </div>
+            </section>
+
+            <!-- ==================== TAB 4: DOMPET DIGITAL (E-WALLET) ==================== -->
+            <section id="tab-wallet" class="hidden p-4 sm:p-6 space-y-6 fade-in">
+                <div class="bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-700 text-white rounded-3xl p-6 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                        <span class="text-xs uppercase tracking-widest bg-white/20 px-3 py-1 rounded-full font-bold">Dompet Digital NusaPay</span>
+                        <p class="text-xs text-emerald-100 mt-3">Total Saldo Tersedia</p>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-0.5" id="wallet-page-balance">Rp 250.000</h2>
+                        <p class="text-xs text-emerald-100 mt-1"><i class="fa-solid fa-shield-halved mr-1"></i> Terhubung dengan nomor 0812-3456-7890</p>
+                    </div>
+                    <div class="flex gap-3 w-full sm:w-auto">
+                        <button onclick="openTopUpModal()" class="flex-1 sm:flex-initial bg-white text-emerald-800 hover:bg-emerald-50 font-extrabold text-xs px-5 py-3 rounded-2xl shadow transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-plus-circle text-base"></i> Top Up Saldo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mutasi / Transaction History -->
+                <div>
+                    <h3 class="font-bold text-slate-800 text-sm mb-3 flex items-center justify-between">
+                        <span>Riwayat Transaksi Dompet</span>
+                        <span class="text-xs font-normal text-slate-500">Pemasukan & Pengeluaran</span>
+                    </h3>
+                    <div id="wallet-transactions-list" class="bg-white border border-slate-200 rounded-2xl divide-y divide-slate-100 overflow-hidden">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== TAB 5: PROFIL & ALAMAT TERSIMPAN ==================== -->
+            <section id="tab-profile" class="hidden p-4 sm:p-6 space-y-6 fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                    <!-- User Profile Form -->
+                    <div class="md:col-span-5 bg-white border border-slate-200 rounded-2xl p-5 space-y-4 h-fit">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 rounded-2xl bg-emerald-600 text-white font-extrabold text-2xl flex items-center justify-center shadow" id="profile-avatar-box">
+                                BS
+                            </div>
+                            <div>
+                                <h3 class="font-extrabold text-slate-800 text-base" id="profile-display-name">Budi Santoso</h3>
+                                <p class="text-xs text-slate-500" id="profile-display-email">budi.santoso@email.com</p>
+                                <span class="inline-block mt-1 text-[10px] bg-amber-100 text-amber-800 font-bold px-2.5 py-0.5 rounded-full"><i class="fa-solid fa-crown mr-1"></i> Member Gold</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 pt-2 border-t border-slate-100">
+                            <div>
+                                <label class="text-xs font-semibold text-slate-600 block mb-1">Nama Pengguna</label>
+                                <input type="text" id="input-profile-name" value="Budi Santoso" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-medium">
+                            </div>
+                            <div>
+                                <label class="text-xs font-semibold text-slate-600 block mb-1">Nomor WhatsApp (No. WA)</label>
+                                <input type="text" id="input-profile-phone" value="0812-3456-7890" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-medium">
+                            </div>
+                            <div>
+                                <label class="text-xs font-semibold text-slate-600 block mb-1">Alamat Email</label>
+                                <input type="email" id="input-profile-email" value="budi.santoso@email.com" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-medium">
+                            </div>
+                            <div>
+                                <label class="text-xs font-semibold text-slate-600 block mb-1">Alamat Utama Pelanggan</label>
+                                <input type="text" id="input-profile-address" value="Jl. Jenderal Sudirman No. 45, Senayan" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-medium">
+                            </div>
+                            <button id="btn-save-profile" onclick="saveProfile()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 rounded-xl transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-floppy-disk"></i> Simpan & Sinkronkan Database
+                            </button>
+                            <p id="profile-sync-status" class="text-[11px] text-slate-400 text-center">Data profil otomatis tersimpan ke Google Spreadsheet jika URL Database aktif.</p>
+                        </div>
+                    </div>
+
+                    <!-- Saved Addresses Management -->
+                    <div class="md:col-span-7 bg-white border border-slate-200 rounded-2xl p-5 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-extrabold text-slate-800 text-base">Daftar Alamat Tersimpan</h3>
+                                <p class="text-xs text-slate-500">Digunakan untuk mempercepat pemilihan lokasi jemput & pengantaran</p>
+                            </div>
+                        </div>
+
+                        <!-- Saved Address List -->
+                        <div id="saved-addresses-list" class="space-y-2.5">
+                            <!-- Populated via JS -->
+                        </div>
+
+                        <!-- Add New Address -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2.5">
+                            <h4 class="text-xs font-bold text-slate-700">Tambah Alamat Favorit Baru</h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                <input type="text" id="new-addr-label" placeholder="Label (mis: Kos, Gym)" class="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs">
+                                <input type="text" id="new-addr-detail" placeholder="Alamat lengkap & patokan" class="sm:col-span-2 bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs">
+                            </div>
+                            <button onclick="addSavedAddress()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-4 py-2 rounded-lg transition">
+                                <i class="fa-solid fa-plus mr-1"></i> Tambah Alamat
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Bottom Navigation Bar -->
+        <nav class="bg-white border-t border-slate-200 px-2 sm:px-6 py-2 flex items-center justify-around sticky bottom-0 z-30">
+            <button onclick="switchTab('home')" id="nav-btn-home" class="nav-btn flex flex-col items-center py-1 px-3 rounded-xl text-emerald-600 font-bold transition">
+                <i class="fa-solid fa-house text-lg"></i>
+                <span class="text-[11px] mt-0.5">Beranda</span>
+            </button>
+            <button onclick="switchTab('promo')" id="nav-btn-promo" class="nav-btn flex flex-col items-center py-1 px-3 rounded-xl text-slate-400 hover:text-slate-600 font-medium transition">
+                <i class="fa-solid fa-percent text-lg"></i>
+                <span class="text-[11px] mt-0.5">Promo</span>
+            </button>
+            <button onclick="switchTab('orders')" id="nav-btn-orders" class="nav-btn flex flex-col items-center py-1 px-3 rounded-xl text-slate-400 hover:text-slate-600 font-medium transition relative">
+                <i class="fa-solid fa-receipt text-lg"></i>
+                <span class="text-[11px] mt-0.5">Pesanan</span>
+                <span id="nav-order-badge" class="hidden absolute top-0.5 right-2.5 w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+            </button>
+            <button onclick="switchTab('wallet')" id="nav-btn-wallet" class="nav-btn flex flex-col items-center py-1 px-3 rounded-xl text-slate-400 hover:text-slate-600 font-medium transition">
+                <i class="fa-solid fa-wallet text-lg"></i>
+                <span class="text-[11px] mt-0.5">NusaPay</span>
+            </button>
+            <button onclick="switchTab('profile')" id="nav-btn-profile" class="nav-btn flex flex-col items-center py-1 px-3 rounded-xl text-slate-400 hover:text-slate-600 font-medium transition">
+                <i class="fa-solid fa-user text-lg"></i>
+                <span class="text-[11px] mt-0.5">Profil</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- ==================== MODAL 1: LIVE TRACKING & CHAT SIMULASI ==================== -->
+    <div id="modal-tracking" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl border border-slate-200 flex flex-col max-h-[92vh] fade-in">
+            <!-- Modal Header -->
+            <div class="bg-slate-900 text-white px-5 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-emerald-500 text-slate-950 flex items-center justify-center font-bold text-lg">
+                        <i id="track-service-icon" class="fa-solid fa-motorcycle"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-extrabold text-sm sm:text-base" id="track-order-title">Pelacakan Langsung NusaRide</h3>
+                            <span class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-2 py-0.5 rounded-full" id="track-order-id">#ORD-9012</span>
+                        </div>
+                        <p class="text-xs text-slate-300" id="track-status-subtitle">Mitra pengemudi sedang menuju lokasimu</p>
+                    </div>
+                </div>
+                <button onclick="closeTrackingModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1">
+                <!-- Interactive Simulated Map -->
+                <div class="map-bg h-52 sm:h-60 rounded-2xl border border-slate-300 relative overflow-hidden">
+                    <!-- Decorative SVG Road & Route -->
+                    <svg class="w-full h-full" viewBox="0 0 600 220">
+                        <!-- Background Roads -->
+                        <line x1="0" y1="60" x2="600" y2="60" stroke="#cbd5e1" stroke-width="14"/>
+                        <line x1="0" y1="165" x2="600" y2="165" stroke="#cbd5e1" stroke-width="14"/>
+                        <line x1="150" y1="0" x2="150" y2="220" stroke="#cbd5e1" stroke-width="14"/>
+                        <line x1="450" y1="0" x2="450" y2="220" stroke="#cbd5e1" stroke-width="14"/>
+                        <!-- Active Route Path -->
+                        <path d="M 90 165 L 280 165 L 340 60 L 510 60" fill="none" stroke="#10b981" stroke-width="6" stroke-linecap="round" stroke-dasharray="10,6"/>
+                        <!-- Pickup Pin -->
+                        <circle cx="90" cy="165" r="10" fill="#059669"/>
+                        <text x="65" y="195" font-size="11" font-weight="bold" fill="#0f172a">Titik Jemput</text>
+                        <!-- Destination Pin -->
+                        <circle cx="510" cy="60" r="10" fill="#e11d48"/>
+                        <text x="470" y="38" font-size="11" font-weight="bold" fill="#0f172a">Tujuan Akhir</text>
+                    </svg>
+
+                    <!-- Animated Moving Driver Marker -->
+                    <div id="driver-map-marker" class="absolute transition-all duration-700 ease-in-out flex flex-col items-center" style="left: 14%; top: 62%;">
+                        <div class="bg-slate-900 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow mb-1 whitespace-nowrap" id="driver-floating-label">
+                            Mencari Driver...
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-emerald-600 text-white border-2 border-white shadow-lg flex items-center justify-center pulse-marker relative">
+                            <i id="driver-marker-icon" class="fa-solid fa-motorcycle text-sm"></i>
+                        </div>
+                    </div>
+
+                    <!-- Simulation Control Bar overlay -->
+                    <div class="absolute top-3 right-3 bg-white/95 backdrop-blur px-3 py-1.5 rounded-xl shadow border border-slate-200 flex items-center gap-2">
+                        <span class="text-[11px] font-semibold text-slate-600">Simulasi Status:</span>
+                        <button onclick="advanceOrderStep()" id="btn-next-step" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg transition">
+                            Majukan Status <i class="fa-solid fa-forward-step ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 4-Step Progress Bar -->
+                <div class="grid grid-cols-4 gap-2 pt-1" id="tracking-stepper">
+                    <!-- Rendered dynamically -->
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-4 pt-2">
+                    <!-- Driver Info Card -->
+                    <div class="md:col-span-5 bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col justify-between space-y-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 font-extrabold flex items-center justify-center text-lg">
+                                HW
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-sm" id="track-driver-name">Hendra Wijaya</h4>
+                                <p class="text-xs text-slate-500" id="track-driver-plate">Honda Vario • B 4821 KZL</p>
+                                <span class="text-[11px] text-amber-600 font-bold">★ 4.9 (1.420 perjalanan)</span>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-slate-200 pt-2.5 text-xs space-y-1">
+                            <p class="text-slate-500">Rute / Detail:</p>
+                            <p class="font-bold text-slate-800" id="track-route-detail">Rumah → Kantor Pusat</p>
+                            <div class="flex justify-between pt-1">
+                                <span class="text-slate-500">Total Biaya:</span>
+                                <span class="font-extrabold text-emerald-700" id="track-price-detail">Rp 16.000 (NusaPay)</span>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2 pt-1">
+                            <button onclick="cancelActiveOrder()" id="btn-cancel-order" class="w-full border border-rose-300 text-rose-600 hover:bg-rose-50 font-bold text-xs py-2 rounded-xl transition">
+                                Batalkan Pesanan
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Simulated Chat with Driver -->
+                    <div class="md:col-span-7 bg-white border border-slate-200 rounded-2xl p-3.5 flex flex-col h-56">
+                        <div class="text-xs font-bold text-slate-700 border-b border-slate-100 pb-2 mb-2 flex items-center justify-between">
+                            <span><i class="fa-solid fa-comments text-emerald-600 mr-1.5"></i> Chat dengan Mitra Driver</span>
+                            <span class="text-[10px] text-emerald-600 font-semibold">Online</span>
+                        </div>
+                        <div id="driver-chat-messages" class="flex-1 overflow-y-auto space-y-2 pr-1 text-xs">
+                            <!-- Chat messages rendered here -->
+                        </div>
+                        <form onsubmit="sendDriverChat(event)" class="mt-2 flex gap-2 pt-2 border-t border-slate-100">
+                            <input type="text" id="driver-chat-input" placeholder="Ketik pesan ke driver (misal: Sesuai titik ya pak)..." class="flex-1 bg-slate-100 rounded-xl px-3 py-2 text-xs focus:outline-none focus:bg-white focus:ring-1 focus:ring-emerald-500">
+                            <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL 2: TOP-UP DOMPET DIGITAL ==================== -->
+    <div id="modal-topup" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 space-y-4 shadow-2xl border border-slate-200 fade-in">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <h3 class="font-extrabold text-base text-slate-800">Isi Saldo NusaPay</h3>
+                </div>
+                <button onclick="closeTopUpModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase block mb-2">Pilih Nominal Instan</label>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <button onclick="setTopUpNominal(25000)" class="border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 rounded-xl py-2.5 text-xs font-bold text-slate-700 transition">Rp 25.000</button>
+                    <button onclick="setTopUpNominal(50000)" class="border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 rounded-xl py-2.5 text-xs font-bold text-slate-700 transition">Rp 50.000</button>
+                    <button onclick="setTopUpNominal(100000)" class="border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 rounded-xl py-2.5 text-xs font-bold text-slate-700 transition">Rp 100.000</button>
+                    <button onclick="setTopUpNominal(250000)" class="border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 rounded-xl py-2.5 text-xs font-bold text-slate-700 transition">Rp 250.000</button>
+                </div>
+            </div>
+
+            <div>
+                <label class="text-xs font-semibold text-slate-600 block mb-1">Nominal Top Up (Rp)</label>
+                <input type="number" id="topup-amount-input" value="50000" min="10000" step="5000" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
+            </div>
+
+            <div>
+                <label class="text-xs font-semibold text-slate-600 block mb-1">Metode Pembayaran Top Up</label>
+                <select id="topup-source" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-700">
+                    <option value="BCA Virtual Account">BCA Virtual Account (Bebas Admin)</option>
+                    <option value="Mandiri Livin'">Mandiri Livin'</option>
+                    <option value="BRI Brimo">BRI Brimo</option>
+                    <option value="Minimarket (Indomaret/Alfamart)">Minimarket (Indomaret / Alfamart)</option>
+                </select>
+            </div>
+
+            <button onclick="confirmTopUp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow transition text-sm">
+                Konfirmasi & Tambah Saldo
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL 3: RATING & ULASAN ==================== -->
+    <div id="modal-rating" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-slate-200 text-center fade-in">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl mx-auto">
+                <i class="fa-solid fa-face-smile-beam"></i>
+            </div>
+            <div>
+                <h3 class="font-extrabold text-lg text-slate-800">Pesanan Selesai!</h3>
+                <p class="text-xs text-slate-500 mt-0.5" id="rating-modal-subtitle">Bagaimana pengalamanmu bersama Mitra Hendra Wijaya?</p>
+            </div>
+
+            <!-- 1-5 Star Selector -->
+            <div class="flex items-center justify-center gap-2 py-2" id="star-rating-container">
+                <button onclick="selectRatingStar(1)" class="star-btn text-3xl text-amber-400 hover:scale-110 transition"><i class="fa-solid fa-star"></i></button>
+                <button onclick="selectRatingStar(2)" class="star-btn text-3xl text-amber-400 hover:scale-110 transition"><i class="fa-solid fa-star"></i></button>
+                <button onclick="selectRatingStar(3)" class="star-btn text-3xl text-amber-400 hover:scale-110 transition"><i class="fa-solid fa-star"></i></button>
+                <button onclick="selectRatingStar(4)" class="star-btn text-3xl text-amber-400 hover:scale-110 transition"><i class="fa-solid fa-star"></i></button>
+                <button onclick="selectRatingStar(5)" class="star-btn text-3xl text-amber-400 hover:scale-110 transition"><i class="fa-solid fa-star"></i></button>
+            </div>
+
+            <textarea id="rating-comment-input" rows="2" placeholder="Tulis ulasan singkat (misal: Driver ramah, tepat waktu, makanan masih hangat)..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:border-emerald-500"></textarea>
+
+            <div class="flex gap-2">
+                <button onclick="closeRatingModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs py-3 rounded-xl transition">Nanti Saja</button>
+                <button onclick="submitOrderRating()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-3 rounded-xl shadow transition">Kirim Ulasan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL 4: PANEL PENGATURAN ADMIN & DATABASE SPREADSHEET ==================== -->
+    <div id="modal-admin" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-slate-200 flex flex-col max-h-[92vh] fade-in">
+            <!-- Modal Header -->
+            <div class="bg-slate-900 text-white px-5 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold text-lg">
+                        <i class="fa-solid fa-sliders"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-sm sm:text-base">Panel Pengaturan Admin</h3>
+                        <p class="text-xs text-slate-300">Atur identitas brand aplikasi & koneksi database Google Spreadsheet</p>
+                    </div>
+                </div>
+                <button onclick="closeAdminModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Admin Sub-Tabs -->
+            <div class="bg-slate-100 px-5 pt-3 flex gap-2 border-b border-slate-200">
+                <button onclick="switchAdminTab('brand')" id="admin-tab-btn-brand" class="bg-white text-emerald-700 border-t border-x border-slate-200 font-extrabold text-xs px-4 py-2.5 rounded-t-xl">
+                    <i class="fa-solid fa-paintbrush mr-1.5"></i> Identitas & Logo Aplikasi
+                </button>
+                <button onclick="switchAdminTab('database')" id="admin-tab-btn-database" class="text-slate-600 hover:text-slate-900 font-semibold text-xs px-4 py-2.5 rounded-t-xl">
+                    <i class="fa-solid fa-table mr-1.5 text-emerald-600"></i> Database Google Spreadsheet
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-5 overflow-y-auto space-y-5 flex-1">
+                
+                <!-- SUB-TAB 1: BRAND & LOGO SETTINGS -->
+                <div id="admin-panel-brand" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs font-bold text-slate-700 block mb-1">Nama Aplikasi Utama</label>
+                            <input type="text" id="admin-app-name" placeholder="Contoh: GoNusa / AntarKita" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
+                            <p class="text-[11px] text-slate-400 mt-1">Tampil di header atas & judul halaman.</p>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-700 block mb-1">Prefix Layanan (Ride, Car, Food, Pay)</label>
+                            <input type="text" id="admin-service-prefix" placeholder="Contoh: Nusa / Antar / Klik" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
+                            <p class="text-[11px] text-slate-400 mt-1">Mengubah nama Ride, Car, Food, Send & Pay otomatis.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs font-bold text-slate-700 block mb-1">Label Badge Header</label>
+                            <input type="text" id="admin-app-badge" placeholder="Contoh: SuperApp / Online" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-700 block mb-1">Pilih Ikon Logo (Jika Tanpa Gambar)</label>
+                            <select id="admin-logo-icon" onchange="previewAdminLogo()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-emerald-500">
+                                <option value="fa-bolt">⚡ Petir Cepat (fa-bolt)</option>
+                                <option value="fa-motorcycle">🛵 Motor Ojek (fa-motorcycle)</option>
+                                <option value="fa-rocket">🚀 Roket Kilat (fa-rocket)</option>
+                                <option value="fa-location-arrow">🧭 Navigasi (fa-location-arrow)</option>
+                                <option value="fa-fire">🔥 Api Semangat (fa-fire)</option>
+                                <option value="fa-shield-heart">🛡️ Perisai Aman (fa-shield-heart)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                        <label class="text-xs font-bold text-slate-700 block">Gunakan Gambar Logo Kustom (URL atau Upload File)</label>
+                        <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                            <div id="admin-logo-preview" class="w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-2xl font-extrabold shrink-0 overflow-hidden shadow">
+                                <i class="fa-solid fa-bolt"></i>
+                            </div>
+                            <div class="flex-1 w-full space-y-2">
+                                <input type="text" id="admin-logo-url" oninput="previewAdminLogo()" placeholder="Tempel URL Gambar Logo (https://.../logo.png) atau kosongkan untuk pakai ikon" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500">
+                                <div class="flex items-center gap-2">
+                                    <label class="cursor-pointer bg-slate-200 hover:bg-slate-300 text-slate-800 text-[11px] font-bold px-3 py-1.5 rounded-lg transition">
+                                        <i class="fa-solid fa-upload mr-1"></i> Pilih File Gambar...
+                                        <input type="file" id="admin-logo-file" accept="image/*" onchange="handleLogoFileUpload(event)" class="hidden">
+                                    </label>
+                                    <button type="button" onclick="clearCustomLogo()" class="text-[11px] text-rose-600 font-semibold hover:underline">Reset ke Ikon Standar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                        <button onclick="resetAdminBrandDefault()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2.5 rounded-xl transition">
+                            Kembalikan Default
+                        </button>
+                        <button onclick="saveAdminConfig()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-check"></i> Terapkan Perubahan Brand
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SUB-TAB 2: GOOGLE SPREADSHEET DATABASE -->
+                <div id="admin-panel-database" class="hidden space-y-4">
+                    <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-xs font-extrabold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> Integrasi Google Spreadsheet (Apps Script)
+                            </h4>
+                            <span id="db-connection-badge" class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700">Belum Terhubung</span>
+                        </div>
+                        <p class="text-xs text-slate-600">Setiap perubahan data pelanggan (<strong>Nama Pengguna, Alamat, No. WA, Email</strong>) pada menu Profil & Alamat akan otomatis dikirim dan disimpan ke baris Google Spreadsheet Anda.</p>
+                    </div>
+
+                    <div>
+                        <label class="text-xs font-bold text-slate-700 block mb-1">URL Web App Google Apps Script</label>
+                        <input type="url" id="admin-spreadsheet-url" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-mono text-slate-800 focus:outline-none focus:border-emerald-500">
+                        <div class="flex flex-wrap gap-2 mt-2.5">
+                            <button onclick="saveAdminConfig()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
+                                <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan URL Database
+                            </button>
+                            <button onclick="testSpreadsheetSync()" id="btn-test-sync" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
+                                <i class="fa-solid fa-paper-plane mr-1"></i> Tes Kirim Data Pelanggan Sekarang
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Apps Script Code Helper -->
+                    <div class="bg-slate-900 text-slate-100 rounded-2xl p-4 space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h5 class="text-xs font-bold text-amber-400">Kode Google Apps Script (Pasang di Spreadsheet Anda)</h5>
+                                <p class="text-[11px] text-slate-400">Buka Google Spreadsheet → Ekstensi → Apps Script → Tempel kode ini → Terapkan (Deploy) sebagai Aplikasi Web (Akses: Siapa saja).</p>
+                            </div>
+                            <button onclick="copyAppsScriptCode()" class="bg-white/15 hover:bg-white/25 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg shrink-0 transition">
+                                <i class="fa-solid fa-copy mr-1"></i> Salin Kode
+                            </button>
+                        </div>
+                        <textarea id="apps-script-code-box" readonly rows="6" class="w-full bg-slate-950 text-emerald-300 font-mono text-[11px] p-3 rounded-xl border border-slate-800 focus:outline-none">function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(["Waktu", "Nama Pengguna", "Alamat", "No WA", "Email", "Aksi"]);
+  }
+  var data = JSON.parse(e.postData.contents);
+  sheet.appendRow([
+    new Date(),
+    data.nama || "",
+    data.alamat || "",
+    data.no_wa || "",
+    data.email || "",
+    data.aksi || "Update Profil"
+  ]);
+  return ContentService.createTextOutput(JSON.stringify({ status: "success" }))
+    .setMimeType(ContentService.MimeType.JSON);
+}</textarea>
+                    </div>
+
+                    <!-- Local Sync Log Preview -->
+                    <div class="border border-slate-200 rounded-2xl p-3.5 space-y-2">
+                        <h5 class="text-xs font-bold text-slate-700 flex items-center justify-between">
+                            <span>Log Data Pelanggan Terakhir Disinkronkan</span>
+                            <span class="text-[11px] text-slate-400">Kolom: Nama, Alamat, No. WA, Email</span>
+                        </h5>
+                        <div id="admin-sync-log" class="text-xs space-y-1.5 max-h-36 overflow-y-auto">
+                            <p class="text-slate-400 italic">Belum ada aktivitas pengiriman data.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== APPLICATION LOGIC ==================== -->
+    <script>
+        // --- STATE MANAGEMENT ---
+        const state = {
+            adminConfig: {
+                appName: 'GoNusa',
+                servicePrefix: 'Nusa',
+                appBadge: 'SuperApp',
+                logoIcon: 'fa-bolt',
+                logoUrl: '',
+                spreadsheetUrl: ''
+            },
+            lastAppliedPrefix: 'Nusa',
+            lastAppliedAppName: 'GoNusa',
+            syncLogs: [],
+            user: {
+                name: 'Budi Santoso',
+                phone: '0812-3456-7890',
+                email: 'budi.santoso@email.com',
+                address: 'Jl. Jenderal Sudirman No. 45, Senayan'
+            },
+            walletBalance: 250000,
+            walletTransactions: [
+                { id: 'TRX-102', title: 'Saldo Awal NusaPay', type: 'in', amount: 250000, date: 'Hari ini, 08:00', method: 'BCA Virtual Account' }
+            ],
+            savedAddresses: [
+                { id: 1, label: 'Rumah', detail: 'Jl. Jenderal Sudirman No. 45, Senayan', distanceBase: 0 },
+                { id: 2, label: 'Kantor', detail: 'Menara Karya Lt. 12, Kuningan', distanceBase: 1.5 },
+                { id: 3, label: 'Kampus', detail: 'Jl. Salemba Raya No. 4, Jakarta Pusat', distanceBase: 2.2 }
+            ],
+            promos: [
+                { code: 'HEMAT50', title: 'Diskon 50% NusaRide & NusaCar', desc: 'Potongan 50% hingga Rp 15.000 untuk perjalananmu hari ini.', tag: 'Transportasi', color: 'emerald' },
+                { code: 'JALANTERUS', title: 'Potongan Langsung Rp 10.000', desc: 'Berlaku untuk seluruh layanan NusaRide dan NusaCar.', tag: 'Transportasi', color: 'sky' },
+                { code: 'KULINER20', title: 'Diskon Kuliner Rp 20.000', desc: 'Pesan makanan favorit di NusaFood lebih hemat Rp 20.000.', tag: 'NusaFood', color: 'rose' },
+                { code: 'GRATISONGKIR', title: 'Bebas Ongkir NusaFood', desc: 'Potongan ongkos kirim Rp 8.000 tanpa minimum belanja.', tag: 'NusaFood', color: 'amber' },
+                { code: 'KIRIMHEMAT', title: 'Diskon Kurir Rp 8.000', desc: 'Kirim paket dokumen atau barang pakai NusaSend lebih murah.', tag: 'NusaSend', color: 'indigo' }
+            ],
+            restaurants: [
+                {
+                    id: 'resto-1',
+                    name: 'Ayam Geprek Nusantara',
+                    category: 'Terlaris',
+                    rating: 4.9,
+                    distance: '1.2 km',
+                    deliveryFee: 8000,
+                    icon: 'fa-drumstick-bite',
+                    color: 'amber',
+                    menus: [
+                        { id: 'm1', name: 'Paket Geprek Keju Leleh + Nasi', price: 28000, desc: 'Ayam crispy geprek dengan keju mozzarella lumer' },
+                        { id: 'm2', name: 'Ayam Geprek Sambal Matah', price: 24000, desc: 'Pedas segar khas Bali lengkap dengan lalapan' },
+                        { id: 'm3', name: 'Es Teh Kampul Segar', price: 7000, desc: 'Teh manis dingin dengan perasan jeruk nipis' }
+                    ]
+                },
+                {
+                    id: 'resto-2',
+                    name: 'Kopi Senja & Toast',
+                    category: 'Terdekat',
+                    rating: 4.8,
+                    distance: '0.8 km',
+                    deliveryFee: 6000,
+                    icon: 'fa-mug-hot',
+                    color: 'emerald',
+                    menus: [
+                        { id: 'm4', name: 'Es Kopi Susu Gula Aren', price: 22000, desc: 'Espresso arabika dengan susu segar & gula aren asli' },
+                        { id: 'm5', name: 'Roti Bakar Cokelat Keju', price: 18000, desc: 'Roti brioche panggang renyah dengan topping melimpah' },
+                        { id: 'm6', name: 'Matcha Latte Ice', price: 25000, desc: 'Uji matcha premium dengan susu creamy' }
+                    ]
+                },
+                {
+                    id: 'resto-3',
+                    name: 'Burger & Steak Grill 88',
+                    category: 'Promo',
+                    rating: 4.7,
+                    distance: '2.1 km',
+                    deliveryFee: 10000,
+                    icon: 'fa-burger',
+                    color: 'rose',
+                    menus: [
+                        { id: 'm7', name: 'Double Beef Smash Burger', price: 42000, desc: 'Double patty daging sapi Australia, keju cheddar & saus spesial' },
+                        { id: 'm8', name: 'Loaded Cheese Fries', price: 20000, desc: 'Kentang goreng renyah dengan saus keju & beef bits' },
+                        { id: 'm9', name: 'Chicken Steak Blackpepper', price: 36000, desc: 'Steak ayam panggang saus lada hitam + sayuran' }
+                    ]
+                }
+            ],
+            // Transport Form State
+            selectedFleet: 'ride',
+            transportPayment: 'wallet',
+            transportComputedPrice: 16000,
+            // Food Cart State
+            selectedFoodCategory: 'all',
+            activeRestoId: 'resto-1',
+            cart: [],
+            // Send State
+            sendSize: 'small',
+            sendBaseCost: 15000,
+            sendComputedPrice: 22000,
+            // Active & Historical Orders
+            activeOrder: null,
+            ordersHistory: [
+                {
+                    id: 'ORD-8841',
+                    service: 'NusaFood',
+                    icon: 'fa-utensils',
+                    route: 'Kopi Senja & Toast → Rumah',
+                    driverName: 'Agus Pratama',
+                    plate: 'B 3190 TKP',
+                    total: 38000,
+                    paymentMethod: 'NusaPay',
+                    status: 'completed',
+                    statusText: 'Selesai',
+                    time: 'Kemarin, 19:20',
+                    rating: 5,
+                    review: 'Kopi masih dingin dan pengiriman sangat cepat!'
+                }
+            ],
+            orderFilter: 'all',
+            ratingTargetOrderId: null,
+            selectedStarCount: 5,
+            trackingTimer: null
+        };
+
+        // --- UTILITY FUNCTIONS ---
+        function formatRupiah(num) {
+            return 'Rp ' + Number(num).toLocaleString('id-ID');
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgClass = type === 'error' ? 'bg-rose-600' : (type === 'info' ? 'bg-slate-800' : 'bg-emerald-600');
+            const iconClass = type === 'error' ? 'fa-circle-exclamation' : (type === 'info' ? 'fa-bell' : 'fa-circle-check');
+
+            toast.className = `${bgClass} text-white px-4 py-3 rounded-2xl shadow-lg flex items-center gap-3 text-xs font-semibold pointer-events-auto fade-in`;
+            toast.innerHTML = `<i class="fa-solid ${iconClass} text-base"></i><span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3200);
+        }
+
+        // --- NAVIGATION & TAB SWITCHING ---
+        function hideAllSections() {
+            const sections = ['tab-home', 'view-transport', 'view-food', 'view-send', 'tab-promo', 'tab-orders', 'tab-wallet', 'tab-profile'];
+            sections.forEach(id => document.getElementById(id).classList.add('hidden'));
+        }
+
+        function switchTab(tabName) {
+            hideAllSections();
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+
+            // Update bottom nav active state
+            const navTabs = ['home', 'promo', 'orders', 'wallet', 'profile'];
+            navTabs.forEach(t => {
+                const btn = document.getElementById(`nav-btn-${t}`);
+                if (t === tabName) {
+                    btn.className = 'nav-btn flex flex-col items-center py-1 px-3 rounded-xl text-emerald-600 font-bold transition';
+                } else {
+                    btn.className = 'nav-btn flex flex-col items-center py-1 px-3 rounded-xl text-slate-400 hover:text-slate-600 font-medium transition relative';
+                }
+            });
+
+            if (tabName === 'orders') renderOrdersHistory();
+            if (tabName === 'wallet') renderWalletUI();
+            if (tabName === 'promo') renderPromosUI();
+            if (tabName === 'profile') renderSavedAddresses();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openService(serviceType) {
+            hideAllSections();
+            if (serviceType === 'ride' || serviceType === 'car') {
+                document.getElementById('view-transport').classList.remove('hidden');
+                selectFleet(serviceType);
+                populateAddressSelects();
+                calculateTransportPrice();
+            } else if (serviceType === 'food') {
+                document.getElementById('view-food').classList.remove('hidden');
+                populateAddressSelects();
+                renderRestaurants();
+                openRestoMenu(state.activeRestoId);
+            } else if (serviceType === 'send') {
+                document.getElementById('view-send').classList.remove('hidden');
+                populateAddressSelects();
+                calculateSendPrice();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // --- SAVED ADDRESSES & PROFILE ---
+        function populateAddressSelects() {
+            const selects = ['transport-pickup', 'food-delivery-address', 'send-sender-address'];
+            selects.forEach(selectId => {
+                const el = document.getElementById(selectId);
+                if (!el) return;
+                el.innerHTML = state.savedAddresses.map(addr => 
+                    `<option value="${addr.label} (${addr.detail})|${addr.distanceBase}">${addr.label} - ${addr.detail}</option>`
+                ).join('');
+            });
+            if (state.savedAddresses.length > 0) {
+                const first = state.savedAddresses[0];
+                document.getElementById('header-active-address').textContent = `${first.label} (${first.detail})`;
+                const addrInput = document.getElementById('input-profile-address');
+                if (addrInput && !addrInput.value) {
+                    addrInput.value = first.detail;
+                }
+            }
+        }
+
+        function renderSavedAddresses() {
+            const container = document.getElementById('saved-addresses-list');
+            container.innerHTML = state.savedAddresses.map(addr => `
+                <div class="border border-slate-200 rounded-xl p-3 flex items-center justify-between bg-slate-50/60">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-bookmark"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-xs text-slate-800">${addr.label}</h4>
+                            <p class="text-xs text-slate-500">${addr.detail}</p>
+                        </div>
+                    </div>
+                    ${state.savedAddresses.length > 1 ? `
+                    <button onclick="deleteSavedAddress(${addr.id})" class="text-slate-400 hover:text-rose-600 text-xs px-2 py-1">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function addSavedAddress() {
+            const labelEl = document.getElementById('new-addr-label');
+            const detailEl = document.getElementById('new-addr-detail');
+            const label = labelEl.value.trim();
+            const detail = detailEl.value.trim();
+
+            if (!label || !detail) {
+                showToast('Harap isi label dan detail alamat lengkap.', 'error');
+                return;
+            }
+
+            state.savedAddresses.push({
+                id: Date.now(),
+                label,
+                detail,
+                distanceBase: 1.0
+            });
+
+            labelEl.value = '';
+            detailEl.value = '';
+            renderSavedAddresses();
+            populateAddressSelects();
+            saveStateToStorage();
+            syncUserToSpreadsheet(`Tambah Alamat (${label})`);
+            showToast(`Alamat "${label}" berhasil disimpan!`);
+        }
+
+        function deleteSavedAddress(id) {
+            state.savedAddresses = state.savedAddresses.filter(a => a.id !== id);
+            renderSavedAddresses();
+            populateAddressSelects();
+            showToast('Alamat dihapus.', 'info');
+        }
+
+        function saveProfile() {
+            const name = document.getElementById('input-profile-name').value.trim();
+            const phone = document.getElementById('input-profile-phone').value.trim();
+            const email = document.getElementById('input-profile-email').value.trim();
+            const address = document.getElementById('input-profile-address').value.trim();
+
+            if (!name || !phone) {
+                showToast('Nama Pengguna dan Nomor WA wajib diisi.', 'error');
+                return;
+            }
+
+            state.user = { name, phone, email, address };
+            if (address && state.savedAddresses.length > 0) {
+                state.savedAddresses[0].detail = address;
+            }
+
+            const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+            document.getElementById('header-greeting').textContent = `Halo, ${name}`;
+            document.getElementById('header-avatar').textContent = initials;
+            document.getElementById('profile-avatar-box').textContent = initials;
+            document.getElementById('profile-display-name').textContent = name;
+            document.getElementById('profile-display-email').textContent = email;
+            document.getElementById('send-sender-name').value = name;
+            document.getElementById('send-sender-phone').value = phone;
+
+            populateAddressSelects();
+            renderSavedAddresses();
+            saveStateToStorage();
+            syncUserToSpreadsheet('Simpan Profil Pelanggan');
+            showToast('Profil pengguna berhasil diperbarui!');
+        }
+
+        // --- ADMIN PANEL (BRANDING & GOOGLE SPREADSHEET INTEGRATION) ---
+        function openAdminModal() {
+            document.getElementById('admin-app-name').value = state.adminConfig.appName;
+            document.getElementById('admin-service-prefix').value = state.adminConfig.servicePrefix;
+            document.getElementById('admin-app-badge').value = state.adminConfig.appBadge;
+            document.getElementById('admin-logo-icon').value = state.adminConfig.logoIcon;
+            document.getElementById('admin-logo-url').value = state.adminConfig.logoUrl;
+            document.getElementById('admin-spreadsheet-url').value = state.adminConfig.spreadsheetUrl;
+
+            previewAdminLogo();
+            updateDbConnectionBadge();
+            renderSyncLogs();
+
+            document.getElementById('modal-admin').classList.remove('hidden');
+            document.getElementById('modal-admin').classList.add('flex');
+        }
+
+        function closeAdminModal() {
+            document.getElementById('modal-admin').classList.add('hidden');
+            document.getElementById('modal-admin').classList.remove('flex');
+        }
+
+        function switchAdminTab(tab) {
+            const brandPanel = document.getElementById('admin-panel-brand');
+            const dbPanel = document.getElementById('admin-panel-database');
+            const brandBtn = document.getElementById('admin-tab-btn-brand');
+            const dbBtn = document.getElementById('admin-tab-btn-database');
+
+            if (tab === 'brand') {
+                brandPanel.classList.remove('hidden');
+                dbPanel.classList.add('hidden');
+                brandBtn.className = 'bg-white text-emerald-700 border-t border-x border-slate-200 font-extrabold text-xs px-4 py-2.5 rounded-t-xl';
+                dbBtn.className = 'text-slate-600 hover:text-slate-900 font-semibold text-xs px-4 py-2.5 rounded-t-xl';
+            } else {
+                dbPanel.classList.remove('hidden');
+                brandPanel.classList.add('hidden');
+                dbBtn.className = 'bg-white text-emerald-700 border-t border-x border-slate-200 font-extrabold text-xs px-4 py-2.5 rounded-t-xl';
+                brandBtn.className = 'text-slate-600 hover:text-slate-900 font-semibold text-xs px-4 py-2.5 rounded-t-xl';
+            }
+        }
+
+        function previewAdminLogo() {
+            const url = document.getElementById('admin-logo-url').value.trim();
+            const icon = document.getElementById('admin-logo-icon').value;
+            const previewBox = document.getElementById('admin-logo-preview');
+
+            if (url) {
+                previewBox.innerHTML = `<img src="${url}" alt="Logo" class="w-full h-full object-cover" onerror="this.outerHTML='<i class=\\'fa-solid ${icon}\\'></i>'">`;
+            } else {
+                previewBox.innerHTML = `<i class="fa-solid ${icon}"></i>`;
+            }
+        }
+
+        function handleLogoFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('admin-logo-url').value = e.target.result;
+                previewAdminLogo();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearCustomLogo() {
+            document.getElementById('admin-logo-url').value = '';
+            const fileInput = document.getElementById('admin-logo-file');
+            if (fileInput) fileInput.value = '';
+            previewAdminLogo();
+        }
+
+        function resetAdminBrandDefault() {
+            document.getElementById('admin-app-name').value = 'GoNusa';
+            document.getElementById('admin-service-prefix').value = 'Nusa';
+            document.getElementById('admin-app-badge').value = 'SuperApp';
+            document.getElementById('admin-logo-icon').value = 'fa-bolt';
+            document.getElementById('admin-logo-url').value = '';
+            previewAdminLogo();
+            saveAdminConfig();
+        }
+
+        function replaceBrandStringsInNode(root, oldPrefix, newPrefix, oldApp, newApp) {
+            const services = ['Ride', 'Car', 'Food', 'Send', 'Pay'];
+            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+            let node;
+            while ((node = walker.nextNode())) {
+                if (node.parentElement && ['SCRIPT', 'STYLE', 'TEXTAREA'].includes(node.parentElement.tagName)) continue;
+                let text = node.nodeValue;
+                let changed = false;
+
+                if (oldApp && newApp && text.includes(oldApp)) {
+                    text = text.split(oldApp).join(newApp);
+                    changed = true;
+                }
+                services.forEach(svc => {
+                    const fromSvc = oldPrefix + svc;
+                    const toSvc = newPrefix + svc;
+                    if (text.includes(fromSvc)) {
+                        text = text.split(fromSvc).join(toSvc);
+                        changed = true;
+                    }
+                });
+
+                if (changed) node.nodeValue = text;
+            }
+        }
+
+        function applyBrandConfig() {
+            const cfg = state.adminConfig;
+            const oldPrefix = state.lastAppliedPrefix;
+            const newPrefix = cfg.servicePrefix || 'Nusa';
+            const oldApp = state.lastAppliedAppName;
+            const newApp = cfg.appName || 'GoNusa';
+
+            // Update Header Name, Badge & Document Title
+            document.getElementById('brand-app-name').textContent = newApp;
+            document.getElementById('brand-app-badge').textContent = cfg.appBadge || 'SuperApp';
+            document.title = `${newApp} - Aplikasi On-Demand Multi-Layanan`;
+
+            // Update Header Logo
+            const logoContainer = document.getElementById('brand-logo-container');
+            if (cfg.logoUrl) {
+                logoContainer.innerHTML = `<img src="${cfg.logoUrl}" alt="${newApp}" class="w-full h-full object-cover" onerror="this.outerHTML='<i class=\\'fa-solid ${cfg.logoIcon}\\'></i>'">`;
+            } else {
+                logoContainer.innerHTML = `<i id="brand-logo-icon" class="fa-solid ${cfg.logoIcon}"></i>`;
+            }
+
+            // Replace service prefixes across state data & DOM text nodes
+            if (oldPrefix !== newPrefix || oldApp !== newApp) {
+                const services = ['Ride', 'Car', 'Food', 'Send', 'Pay'];
+                const replaceText = (str) => {
+                    if (typeof str !== 'string') return str;
+                    let res = str.split(oldApp).join(newApp);
+                    services.forEach(s => {
+                        res = res.split(oldPrefix + s).join(newPrefix + s);
+                    });
+                    return res;
+                };
+
+                state.promos.forEach(p => {
+                    p.title = replaceText(p.title);
+                    p.desc = replaceText(p.desc);
+                    p.tag = replaceText(p.tag);
+                });
+                state.walletTransactions.forEach(tx => {
+                    tx.title = replaceText(tx.title);
+                    tx.method = replaceText(tx.method);
+                });
+                state.ordersHistory.forEach(ord => {
+                    ord.service = replaceText(ord.service);
+                    ord.paymentMethod = replaceText(ord.paymentMethod);
+                });
+
+                replaceBrandStringsInNode(document.body, oldPrefix, newPrefix, oldApp, newApp);
+                state.lastAppliedPrefix = newPrefix;
+                state.lastAppliedAppName = newApp;
+
+                renderPromosUI();
+                renderWalletUI();
+                renderOrdersHistory();
+            }
+
+            updateDbConnectionBadge();
+        }
+
+        function saveAdminConfig() {
+            const appName = document.getElementById('admin-app-name').value.trim() || 'GoNusa';
+            const servicePrefix = document.getElementById('admin-service-prefix').value.trim() || 'Nusa';
+            const appBadge = document.getElementById('admin-app-badge').value.trim() || 'SuperApp';
+            const logoIcon = document.getElementById('admin-logo-icon').value || 'fa-bolt';
+            const logoUrl = document.getElementById('admin-logo-url').value.trim();
+            const spreadsheetUrl = document.getElementById('admin-spreadsheet-url').value.trim();
+
+            state.adminConfig = {
+                appName,
+                servicePrefix,
+                appBadge,
+                logoIcon,
+                logoUrl,
+                spreadsheetUrl
+            };
+
+            applyBrandConfig();
+            saveStateToStorage();
+            showToast(`Pengaturan Admin (${appName}) berhasil diterapkan!`);
+        }
+
+        function updateDbConnectionBadge() {
+            const badge = document.getElementById('db-connection-badge');
+            const statusText = document.getElementById('profile-sync-status');
+            if (state.adminConfig.spreadsheetUrl) {
+                badge.textContent = 'Terhubung ke Spreadsheet';
+                badge.className = 'text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800';
+                if (statusText) statusText.textContent = 'Terhubung ke Google Spreadsheet — perubahan profil otomatis tersinkronisasi.';
+            } else {
+                badge.textContent = 'Belum Terhubung (Lokal)';
+                badge.className = 'text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700';
+                if (statusText) statusText.textContent = 'Atur URL Google Spreadsheet di Panel Admin untuk sinkronisasi cloud.';
+            }
+        }
+
+        async function syncUserToSpreadsheet(actionLabel = 'Update Profil') {
+            const primaryAddress = state.user.address || (state.savedAddresses[0] ? state.savedAddresses[0].detail : '-');
+            const allAddresses = state.savedAddresses.map(a => `${a.label}: ${a.detail}`).join(' | ');
+            const payload = {
+                nama: state.user.name,
+                alamat: `${primaryAddress} (${allAddresses})`,
+                no_wa: state.user.phone,
+                email: state.user.email,
+                aksi: actionLabel
+            };
+
+            const timeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const url = state.adminConfig.spreadsheetUrl;
+
+            if (!url) {
+                state.syncLogs.unshift({
+                    time: timeStr,
+                    status: 'Tersimpan Lokal',
+                    data: `${payload.nama} • ${payload.no_wa} • ${payload.email} • ${primaryAddress}`
+                });
+                renderSyncLogs();
+                return;
+            }
+
+            try {
+                await fetch(url, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+                state.syncLogs.unshift({
+                    time: timeStr,
+                    status: 'Terkirim ke Spreadsheet',
+                    data: `${payload.nama} • ${payload.no_wa} • ${payload.email} • ${primaryAddress}`
+                });
+                renderSyncLogs();
+                showToast('Data pelanggan dikirim ke Google Spreadsheet!', 'info');
+            } catch (err) {
+                state.syncLogs.unshift({
+                    time: timeStr,
+                    status: 'Gagal Kirim',
+                    data: `${payload.nama} (${err.message})`
+                });
+                renderSyncLogs();
+                showToast('Gagal menghubungi URL Google Spreadsheet.', 'error');
+            }
+        }
+
+        function testSpreadsheetSync() {
+            saveAdminConfig();
+            if (!state.adminConfig.spreadsheetUrl) {
+                showToast('Masukkan URL Web App Google Apps Script terlebih dahulu!', 'error');
+                return;
+            }
+            syncUserToSpreadsheet('Tes Koneksi Admin');
+        }
+
+        function renderSyncLogs() {
+            const container = document.getElementById('admin-sync-log');
+            if (!container) return;
+            if (state.syncLogs.length === 0) {
+                container.innerHTML = `<p class="text-slate-400 italic">Belum ada aktivitas pengiriman data.</p>`;
+                return;
+            }
+            container.innerHTML = state.syncLogs.slice(0, 8).map(log => `
+                <div class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 flex items-center justify-between gap-2">
+                    <div class="truncate">
+                        <span class="font-bold text-slate-700">[${log.time}]</span>
+                        <span class="text-slate-600 ml-1">${log.data}</span>
+                    </div>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${log.status.includes('Spreadsheet') ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'}">${log.status}</span>
+                </div>
+            `).join('');
+        }
+
+        function copyAppsScriptCode() {
+            const box = document.getElementById('apps-script-code-box');
+            box.select();
+            document.execCommand('copy');
+            showToast('Kode Google Apps Script berhasil disalin ke clipboard!');
+        }
+
+        function saveStateToStorage() {
+            try {
+                localStorage.setItem('gonusa_admin_config', JSON.stringify(state.adminConfig));
+                localStorage.setItem('gonusa_user_profile', JSON.stringify(state.user));
+                localStorage.setItem('gonusa_saved_addresses', JSON.stringify(state.savedAddresses));
+            } catch (e) {
+                // Ignore storage quota errors
+            }
+        }
+
+        function loadStateFromStorage() {
+            try {
+                const savedAdmin = localStorage.getItem('gonusa_admin_config');
+                if (savedAdmin) {
+                    state.adminConfig = { ...state.adminConfig, ...JSON.parse(savedAdmin) };
+                }
+                const savedUser = localStorage.getItem('gonusa_user_profile');
+                if (savedUser) {
+                    state.user = { ...state.user, ...JSON.parse(savedUser) };
+                    document.getElementById('input-profile-name').value = state.user.name;
+                    document.getElementById('input-profile-phone').value = state.user.phone;
+                    document.getElementById('input-profile-email').value = state.user.email;
+                    document.getElementById('input-profile-address').value = state.user.address || '';
+                    const initials = state.user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                    document.getElementById('header-greeting').textContent = `Halo, ${state.user.name}`;
+                    document.getElementById('header-avatar').textContent = initials;
+                    document.getElementById('profile-avatar-box').textContent = initials;
+                    document.getElementById('profile-display-name').textContent = state.user.name;
+                    document.getElementById('profile-display-email').textContent = state.user.email;
+                }
+                const savedAddrs = localStorage.getItem('gonusa_saved_addresses');
+                if (savedAddrs) {
+                    state.savedAddresses = JSON.parse(savedAddrs);
+                }
+            } catch (e) {
+                // Ignore parse errors
+            }
+        }
+
+        // --- TRANSPORT (GORIDE & GOCAR) LOGIC ---
+        function selectFleet(fleet) {
+            state.selectedFleet = fleet;
+            const fleets = ['ride', 'car', 'carxl'];
+            fleets.forEach(f => {
+                const card = document.getElementById(`fleet-card-${f}`);
+                if (f === fleet) {
+                    card.className = 'cursor-pointer border-2 border-emerald-500 bg-emerald-50/40 rounded-2xl p-3.5 flex items-center justify-between transition';
+                } else {
+                    card.className = 'cursor-pointer border border-slate-200 hover:border-slate-300 bg-white rounded-2xl p-3.5 flex items-center justify-between transition';
+                }
+            });
+            calculateTransportPrice();
+        }
+
+        function setPaymentMethod(method) {
+            state.transportPayment = method;
+            const walletBtn = document.getElementById('pay-btn-wallet');
+            const cashBtn = document.getElementById('pay-btn-cash');
+
+            if (method === 'wallet') {
+                walletBtn.className = 'border-2 border-emerald-500 bg-emerald-50/50 rounded-xl p-2.5 text-left transition';
+                cashBtn.className = 'border border-slate-200 bg-white rounded-xl p-2.5 text-left transition';
+            } else {
+                cashBtn.className = 'border-2 border-emerald-500 bg-emerald-50/50 rounded-xl p-2.5 text-left transition';
+                walletBtn.className = 'border border-slate-200 bg-white rounded-xl p-2.5 text-left transition';
+            }
+        }
+
+        function calculateTransportPrice() {
+            const pickupVal = document.getElementById('transport-pickup').value || 'Rumah|0';
+            const destVal = document.getElementById('transport-destination').value || 'Tujuan|4.2';
+
+            const pickupOffset = parseFloat(pickupVal.split('|')[1] || 0);
+            const destKm = parseFloat(destVal.split('|')[1] || 4.2);
+            const totalKm = Math.max(1.5, +(destKm + pickupOffset).toFixed(1));
+
+            // Calculate rates per km
+            const rideFare = Math.round((totalKm * 3000 + 4000) / 1000) * 1000;
+            const carFare = Math.round((totalKm * 5500 + 8000) / 1000) * 1000;
+            const carxlFare = Math.round((totalKm * 7000 + 12000) / 1000) * 1000;
+
+            document.getElementById('price-display-ride').textContent = formatRupiah(rideFare);
+            document.getElementById('price-display-car').textContent = formatRupiah(carFare);
+            document.getElementById('price-display-carxl').textContent = formatRupiah(carxlFare);
+
+            const etaRide = Math.round(totalKm * 2.5);
+            const etaCar = Math.round(totalKm * 3.8);
+            document.getElementById('eta-display-ride').textContent = `~${etaRide} mnt`;
+            document.getElementById('eta-display-car').textContent = `~${etaCar} mnt`;
+            document.getElementById('eta-display-carxl').textContent = `~${etaCar + 2} mnt`;
+
+            document.getElementById('transport-distance-label').textContent = `${totalKm} km`;
+            document.getElementById('transport-time-label').textContent = `~${state.selectedFleet === 'ride' ? etaRide : etaCar} Menit`;
+
+            let baseFare = rideFare;
+            if (state.selectedFleet === 'car') baseFare = carFare;
+            if (state.selectedFleet === 'carxl') baseFare = carxlFare;
+
+            const appFee = 2000;
+            const promoCode = document.getElementById('transport-promo-select').value;
+            let discount = 0;
+
+            if (promoCode === 'HEMAT50') {
+                discount = Math.min(15000, Math.round(baseFare * 0.5));
+            } else if (promoCode === 'JALANTERUS') {
+                discount = 10000;
+            }
+
+            const finalPrice = Math.max(2000, baseFare + appFee - discount);
+            state.transportComputedPrice = finalPrice;
+
+            document.getElementById('transport-base-fare').textContent = formatRupiah(baseFare);
+            document.getElementById('transport-discount-amount').textContent = `-${formatRupiah(discount)}`;
+            document.getElementById('transport-final-price').textContent = formatRupiah(finalPrice);
+        }
+
+        function submitTransportOrder() {
+            const pickupName = (document.getElementById('transport-pickup').value || 'Rumah').split('|')[0];
+            const destName = (document.getElementById('transport-destination').value || 'Tujuan').split('|')[0];
+            const price = state.transportComputedPrice;
+            const payMethod = state.transportPayment;
+
+            if (payMethod === 'wallet' && state.walletBalance < price) {
+                showToast('Saldo NusaPay tidak cukup! Silakan Top Up atau pilih metode Tunai.', 'error');
+                return;
+            }
+
+            const serviceLabel = state.selectedFleet === 'ride' ? 'NusaRide' : (state.selectedFleet === 'car' ? 'NusaCar' : 'NusaCar XL');
+            const iconClass = state.selectedFleet === 'ride' ? 'fa-motorcycle' : 'fa-car-side';
+            const driverInfo = state.selectedFleet === 'ride' 
+                ? { name: 'Hendra Wijaya', plate: 'Honda Vario • B 4821 KZL' }
+                : { name: 'Dimas Prakoso', plate: 'Toyota Avanza • B 1928 WXY' };
+
+            if (payMethod === 'wallet') {
+                deductWallet(price, `Pembayaran ${serviceLabel} (${destName})`);
+            }
+
+            startLiveOrder({
+                service: serviceLabel,
+                icon: iconClass,
+                route: `${pickupName} → ${destName}`,
+                driverName: driverInfo.name,
+                plate: driverInfo.plate,
+                total: price,
+                paymentMethod: payMethod === 'wallet' ? 'NusaPay' : 'Tunai'
+            });
+        }
+
+        // --- FOOD DELIVERY (GOFOOD) LOGIC ---
+        function setFoodCategory(cat) {
+            state.selectedFoodCategory = cat;
+            document.querySelectorAll('.food-cat-btn').forEach(btn => {
+                btn.className = 'food-cat-btn bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition';
+            });
+            const activeBtn = document.getElementById(`food-cat-${cat}`);
+            if (activeBtn) {
+                activeBtn.className = 'food-cat-btn bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-full shrink-0 transition';
+            }
+            renderRestaurants();
+        }
+
+        function renderRestaurants() {
+            const query = (document.getElementById('food-search')?.value || '').toLowerCase();
+            const listEl = document.getElementById('restaurant-list');
+
+            const filtered = state.restaurants.filter(r => {
+                const matchCat = state.selectedFoodCategory === 'all' || r.category === state.selectedFoodCategory;
+                const matchQuery = r.name.toLowerCase().includes(query) || r.menus.some(m => m.name.toLowerCase().includes(query));
+                return matchCat && matchQuery;
+            });
+
+            listEl.innerHTML = filtered.map(r => {
+                const isSelected = r.id === state.activeRestoId;
+                return `
+                <div onclick="openRestoMenu('${r.id}')" class="cursor-pointer border-2 ${isSelected ? 'border-rose-500 bg-rose-50/30' : 'border-slate-200 bg-white'} hover:border-rose-400 rounded-2xl p-4 transition shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="w-11 h-11 rounded-xl bg-${r.color}-100 text-${r.color}-600 flex items-center justify-center text-lg">
+                                <i class="fa-solid ${r.icon}"></i>
+                            </div>
+                            <span class="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">${r.category}</span>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-sm">${r.name}</h4>
+                        <p class="text-xs text-slate-500 mt-0.5">★ ${r.rating} • ${r.distance} • Ongkir ${formatRupiah(r.deliveryFee)}</p>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <span class="text-rose-600 font-semibold">${r.menus.length} Menu Tersedia</span>
+                        <span class="font-bold text-slate-700">Lihat Menu <i class="fa-solid fa-chevron-right text-[10px]"></i></span>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function openRestoMenu(restoId) {
+            state.activeRestoId = restoId;
+            const resto = state.restaurants.find(r => r.id === restoId);
+            if (!resto) return;
+
+            renderRestaurants();
+            const section = document.getElementById('restaurant-menu-section');
+            section.classList.remove('hidden');
+
+            document.getElementById('active-resto-badge').textContent = resto.category;
+            document.getElementById('active-resto-name').textContent = resto.name;
+            document.getElementById('active-resto-meta').textContent = `★ ${resto.rating} • Jarak ${resto.distance} • Ongkir ${formatRupiah(resto.deliveryFee)}`;
+
+            const menusContainer = document.getElementById('active-resto-menus');
+            menusContainer.innerHTML = resto.menus.map(m => {
+                const inCart = state.cart.find(c => c.id === m.id);
+                const qty = inCart ? inCart.qty : 0;
+                return `
+                <div class="bg-white border border-slate-200 rounded-xl p-3.5 flex items-center justify-between gap-3">
+                    <div>
+                        <h5 class="font-bold text-slate-800 text-sm">${m.name}</h5>
+                        <p class="text-xs text-slate-500 mt-0.5">${m.desc}</p>
+                        <p class="text-xs font-extrabold text-rose-600 mt-1.5">${formatRupiah(m.price)}</p>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        ${qty > 0 ? `
+                            <button onclick="updateCartItem('${resto.id}', '${m.id}', -1)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold text-slate-700">-</button>
+                            <span class="text-xs font-extrabold w-5 text-center">${qty}</span>
+                        ` : ''}
+                        <button onclick="updateCartItem('${resto.id}', '${m.id}', 1)" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition">
+                            ${qty > 0 ? '+' : '+ Tambah'}
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+
+            updateCartUI();
+        }
+
+        function updateCartItem(restoId, menuId, delta) {
+            const resto = state.restaurants.find(r => r.id === restoId);
+            const menu = resto.menus.find(m => m.id === menuId);
+
+            // Reset cart if ordering from a different restaurant
+            if (state.cart.length > 0 && state.cart[0].restoId !== restoId) {
+                state.cart = [];
+                showToast(`Keranjang diperbarui untuk ${resto.name}`, 'info');
+            }
+
+            const existing = state.cart.find(c => c.id === menuId);
+            if (existing) {
+                existing.qty += delta;
+                if (existing.qty <= 0) {
+                    state.cart = state.cart.filter(c => c.id !== menuId);
+                }
+            } else if (delta > 0) {
+                state.cart.push({
+                    id: menu.id,
+                    restoId: resto.id,
+                    restoName: resto.name,
+                    name: menu.name,
+                    price: menu.price,
+                    qty: 1
+                });
+            }
+
+            openRestoMenu(restoId);
+        }
+
+        function clearCart() {
+            state.cart = [];
+            openRestoMenu(state.activeRestoId);
+            showToast('Keranjang belanja dikosongkan.', 'info');
+        }
+
+        function updateCartUI() {
+            const listEl = document.getElementById('cart-items-list');
+            const badgeEl = document.getElementById('cart-count-badge');
+            const resto = state.restaurants.find(r => r.id === state.activeRestoId);
+
+            const totalItems = state.cart.reduce((sum, i) => sum + i.qty, 0);
+            badgeEl.textContent = `${totalItems} Item`;
+
+            if (state.cart.length === 0) {
+                listEl.innerHTML = `<p class="text-slate-400 italic py-4 text-center">Belum ada menu yang dipilih. Klik "+ Tambah" pada daftar menu.</p>`;
+                document.getElementById('food-subtotal').textContent = 'Rp 0';
+                document.getElementById('food-discount').textContent = '-Rp 0';
+                document.getElementById('food-total').textContent = 'Rp 0';
+                return;
+            }
+
+            listEl.innerHTML = state.cart.map(item => `
+                <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
+                    <div>
+                        <p class="font-semibold text-slate-800">${item.qty}x ${item.name}</p>
+                        <p class="text-[11px] text-slate-400">${formatRupiah(item.price)} / porsi</p>
+                    </div>
+                    <span class="font-bold text-slate-700">${formatRupiah(item.price * item.qty)}</span>
+                </div>
+            `).join('');
+
+            const subtotal = state.cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+            const deliveryFee = (resto ? resto.deliveryFee : 8000) + 2000;
+            const promo = document.getElementById('food-promo-select').value;
+
+            let discount = 0;
+            if (promo === 'KULINER20') discount = Math.min(20000, subtotal * 0.4);
+            if (promo === 'GRATISONGKIR') discount = 8000;
+
+            const total = Math.max(2000, subtotal + deliveryFee - discount);
+
+            document.getElementById('food-subtotal').textContent = formatRupiah(subtotal);
+            document.getElementById('food-delivery-fee').textContent = formatRupiah(deliveryFee);
+            document.getElementById('food-discount').textContent = `-${formatRupiah(discount)}`;
+            document.getElementById('food-total').textContent = formatRupiah(total);
+        }
+
+        function submitFoodOrder() {
+            if (state.cart.length === 0) {
+                showToast('Pilih minimal 1 menu makanan terlebih dahulu!', 'error');
+                return;
+            }
+
+            const resto = state.restaurants.find(r => r.id === state.cart[0].restoId);
+            const subtotal = state.cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+            const deliveryFee = resto.deliveryFee + 2000;
+            const promo = document.getElementById('food-promo-select').value;
+            let discount = 0;
+            if (promo === 'KULINER20') discount = Math.min(20000, subtotal * 0.4);
+            if (promo === 'GRATISONGKIR') discount = 8000;
+            const total = Math.max(2000, subtotal + deliveryFee - discount);
+
+            const payMethod = document.getElementById('food-payment-method').value;
+            if (payMethod === 'wallet' && state.walletBalance < total) {
+                showToast('Saldo NusaPay tidak mencukupi! Silakan isi saldo dulu.', 'error');
+                return;
+            }
+
+            const destAddr = (document.getElementById('food-delivery-address').value || 'Rumah').split('|')[0];
+            const note = document.getElementById('food-special-note').value.trim();
+
+            if (payMethod === 'wallet') {
+                deductWallet(total, `NusaFood - ${resto.name}`);
+            }
+
+            const itemsSummary = state.cart.map(c => `${c.qty}x ${c.name}`).join(', ');
+            state.cart = [];
+            updateCartUI();
+
+            startLiveOrder({
+                service: 'NusaFood',
+                icon: 'fa-utensils',
+                route: `${resto.name} → ${destAddr} (${itemsSummary}${note ? ' • Catatan: ' + note : ''})`,
+                driverName: 'Rizky Ramadhan',
+                plate: 'Yamaha NMAX • B 6310 FOD',
+                total: total,
+                paymentMethod: payMethod === 'wallet' ? 'NusaPay' : 'Tunai'
+            });
+        }
+
+        // --- COURIER (GOSEND) LOGIC ---
+        function selectSendSize(size, baseCost) {
+            state.sendSize = size;
+            state.sendBaseCost = baseCost;
+            const sizes = ['small', 'medium', 'large'];
+            sizes.forEach(s => {
+                const btn = document.getElementById(`send-size-${s}`);
+                if (s === size) {
+                    btn.className = 'send-size-btn border-2 border-amber-500 bg-amber-50/50 rounded-xl p-2.5 text-center transition';
+                } else {
+                    btn.className = 'send-size-btn border border-slate-200 bg-white rounded-xl p-2.5 text-center transition';
+                }
+            });
+            calculateSendPrice();
+        }
+
+        function calculateSendPrice() {
+            const speed = document.getElementById('send-speed-type').value;
+            const speedExtra = speed === 'instant' ? 5000 : 0;
+            const base = state.sendBaseCost + speedExtra;
+            const insurance = 2000;
+            const promo = document.getElementById('send-promo-select').value;
+            const discount = promo === 'KIRIMHEMAT' ? 8000 : 0;
+
+            const total = Math.max(5000, base + insurance - discount);
+            state.sendComputedPrice = total;
+
+            document.getElementById('send-base-price').textContent = formatRupiah(base);
+            document.getElementById('send-discount').textContent = `-${formatRupiah(discount)}`;
+            document.getElementById('send-total-price').textContent = formatRupiah(total);
+        }
+
+        function submitSendOrder() {
+            const receiverName = document.getElementById('send-receiver-name').value.trim();
+            const receiverPhone = document.getElementById('send-receiver-phone').value.trim();
+            const receiverAddr = document.getElementById('send-receiver-address').value.trim();
+
+            if (!receiverName || !receiverPhone || !receiverAddr) {
+                showToast('Harap lengkapi Nama, Nomor HP, dan Alamat Penerima paket!', 'error');
+                return;
+            }
+
+            const payMethod = document.getElementById('send-payment-method').value;
+            const total = state.sendComputedPrice;
+
+            if (payMethod === 'wallet' && state.walletBalance < total) {
+                showToast('Saldo NusaPay kurang! Silakan Top Up terlebih dahulu.', 'error');
+                return;
+            }
+
+            if (payMethod === 'wallet') {
+                deductWallet(total, `NusaSend ke ${receiverName}`);
+            }
+
+            const senderAddr = (document.getElementById('send-sender-address').value || 'Rumah').split('|')[0];
+            startLiveOrder({
+                service: 'NusaSend',
+                icon: 'fa-box-open',
+                route: `${senderAddr} → ${receiverName} (${receiverAddr})`,
+                driverName: 'Surya Saputra',
+                plate: 'Honda Beat • B 5591 SND',
+                total: total,
+                paymentMethod: payMethod === 'wallet' ? 'NusaPay' : 'Tunai'
+            });
+        }
+
+        // --- REAL-TIME TRACKING & CHAT SIMULATION ---
+        const trackingSteps = [
+            { step: 0, label: 'Mencari Driver', desc: 'Menghubungkan dengan mitra terdekat...', pos: { left: '14%', top: '62%' } },
+            { step: 1, label: 'Menuju Lokasi Jemput', desc: 'Mitra pengemudi sedang menuju titik penjemputan', pos: { left: '38%', top: '62%' } },
+            { step: 2, label: 'Dalam Perjalanan', desc: 'Pesanan sedang diantar menuju lokasi tujuan', pos: { left: '56%', top: '22%' } },
+            { step: 3, label: 'Selesai', desc: 'Telah tiba di tujuan dengan selamat!', pos: { left: '82%', top: '22%' } }
+        ];
+
+        function startLiveOrder(orderData) {
+            const newOrder = {
+                id: 'ORD-' + Math.floor(1000 + Math.random() * 9000),
+                ...orderData,
+                stepIndex: 0,
+                status: 'active',
+                statusText: trackingSteps[0].label,
+                time: 'Baru saja',
+                rating: null,
+                review: '',
+                chats: [
+                    { sender: 'driver', text: `Halo Kak ${state.user.name}, pesanan ${orderData.service} sudah masuk ya. Mohon ditunggu!`, time: 'Baru saja' }
+                ]
+            };
+
+            state.activeOrder = newOrder;
+            state.ordersHistory.unshift(newOrder);
+
+            updateActiveOrderBanner();
+            openTrackingModal();
+            showToast(`Pesanan ${orderData.service} berhasil dibuat!`);
+
+            // Auto-advance from "Mencari Driver" to "Menuju Lokasi" after 2.5 seconds
+            clearTimeout(state.trackingTimer);
+            state.trackingTimer = setTimeout(() => {
+                if (state.activeOrder && state.activeOrder.stepIndex === 0) {
+                    advanceOrderStep();
+                }
+            }, 2500);
+        }
+
+        function updateActiveOrderBanner() {
+            const pill = document.getElementById('active-order-pill');
+            const homeCard = document.getElementById('home-active-order-card');
+            const navBadge = document.getElementById('nav-order-badge');
+
+            if (state.activeOrder && state.activeOrder.status === 'active') {
+                pill.classList.remove('hidden');
+                pill.classList.add('flex');
+                homeCard.classList.remove('hidden');
+                navBadge.classList.remove('hidden');
+
+                document.getElementById('home-active-icon').className = `fa-solid ${state.activeOrder.icon}`;
+                document.getElementById('home-active-service').textContent = state.activeOrder.service;
+                document.getElementById('home-active-status').textContent = state.activeOrder.statusText;
+                document.getElementById('home-active-route').textContent = state.activeOrder.route;
+                document.getElementById('home-active-driver').textContent = `Mitra: ${state.activeOrder.driverName} • ${state.activeOrder.plate}`;
+            } else {
+                pill.classList.add('hidden');
+                pill.classList.remove('flex');
+                homeCard.classList.add('hidden');
+                navBadge.classList.add('hidden');
+            }
+        }
+
+        function openTrackingModal() {
+            if (!state.activeOrder) return;
+            document.getElementById('modal-tracking').classList.remove('hidden');
+            document.getElementById('modal-tracking').classList.add('flex');
+            renderTrackingModalUI();
+        }
+
+        function closeTrackingModal() {
+            document.getElementById('modal-tracking').classList.add('hidden');
+            document.getElementById('modal-tracking').classList.remove('flex');
+        }
+
+        function renderTrackingModalUI() {
+            const ord = state.activeOrder;
+            if (!ord) return;
+
+            const currentStepInfo = trackingSteps[ord.stepIndex];
+            document.getElementById('track-service-icon').className = `fa-solid ${ord.icon}`;
+            document.getElementById('driver-marker-icon').className = `fa-solid ${ord.icon} text-sm`;
+            document.getElementById('track-order-title').textContent = `Pelacakan Langsung ${ord.service}`;
+            document.getElementById('track-order-id').textContent = `#${ord.id}`;
+            document.getElementById('track-status-subtitle').textContent = currentStepInfo.desc;
+            document.getElementById('driver-floating-label').textContent = currentStepInfo.label;
+
+            // Move Marker on Map
+            const marker = document.getElementById('driver-map-marker');
+            marker.style.left = currentStepInfo.pos.left;
+            marker.style.top = currentStepInfo.pos.top;
+
+            // Render Stepper
+            const stepperEl = document.getElementById('tracking-stepper');
+            stepperEl.innerHTML = trackingSteps.map((s, idx) => {
+                const passed = idx <= ord.stepIndex;
+                return `
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-full h-1.5 rounded-full ${passed ? 'bg-emerald-500' : 'bg-slate-200'} mb-1.5 transition-all"></div>
+                    <span class="text-[11px] font-bold ${passed ? 'text-emerald-700' : 'text-slate-400'}">${s.label}</span>
+                </div>`;
+            }).join('');
+
+            document.getElementById('track-driver-name').textContent = ord.driverName;
+            document.getElementById('track-driver-plate').textContent = ord.plate;
+            document.getElementById('track-route-detail').textContent = ord.route;
+            document.getElementById('track-price-detail').textContent = `${formatRupiah(ord.total)} (${ord.paymentMethod})`;
+
+            renderDriverChat();
+        }
+
+        function advanceOrderStep() {
+            if (!state.activeOrder) return;
+            if (state.activeOrder.stepIndex < 3) {
+                state.activeOrder.stepIndex += 1;
+                const stepObj = trackingSteps[state.activeOrder.stepIndex];
+                state.activeOrder.statusText = stepObj.label;
+
+                if (state.activeOrder.stepIndex === 1) {
+                    state.activeOrder.chats.push({
+                        sender: 'driver',
+                        text: 'Saya sedang meluncur ke titik penjemputan ya Kak, mohon ditunggu sekitar 3 menit.',
+                        time: 'Baru saja'
+                    });
+                } else if (state.activeOrder.stepIndex === 2) {
+                    state.activeOrder.chats.push({
+                        sender: 'driver',
+                        text: 'Titik jemput sudah sesuai, kita mulai perjalanan menuju tujuan ya!',
+                        time: 'Baru saja'
+                    });
+                } else if (state.activeOrder.stepIndex === 3) {
+                    // Order Completed
+                    state.activeOrder.status = 'completed';
+                    state.activeOrder.statusText = 'Selesai';
+                    const completedId = state.activeOrder.id;
+                    const driverName = state.activeOrder.driverName;
+
+                    renderTrackingModalUI();
+                    updateActiveOrderBanner();
+                    renderOrdersHistory();
+
+                    setTimeout(() => {
+                        closeTrackingModal();
+                        openRatingModal(completedId, driverName);
+                        state.activeOrder = null;
+                        updateActiveOrderBanner();
+                    }, 900);
+                    return;
+                }
+
+                renderTrackingModalUI();
+                updateActiveOrderBanner();
+            }
+        }
+
+        function cancelActiveOrder() {
+            if (!state.activeOrder) return;
+            const ord = state.activeOrder;
+
+            // Refund if paid via NusaPay
+            if (ord.paymentMethod === 'NusaPay') {
+                state.walletBalance += ord.total;
+                state.walletTransactions.unshift({
+                    id: 'REF-' + Math.floor(100 + Math.random() * 900),
+                    title: `Refund Pembatalan ${ord.service}`,
+                    type: 'in',
+                    amount: ord.total,
+                    date: 'Baru saja',
+                    method: 'Pengembalian Otomatis'
+                });
+                renderWalletUI();
+            }
+
+            ord.status = 'cancelled';
+            ord.statusText = 'Dibatalkan';
+            state.activeOrder = null;
+
+            closeTrackingModal();
+            updateActiveOrderBanner();
+            renderOrdersHistory();
+            showToast('Pesanan dibatalkan. Dana NusaPay (jika ada) telah dikembalikan.', 'info');
+        }
+
+        function renderDriverChat() {
+            const box = document.getElementById('driver-chat-messages');
+            if (!state.activeOrder) return;
+
+            box.innerHTML = state.activeOrder.chats.map(c => {
+                if (c.sender === 'user') {
+                    return `
+                    <div class="flex justify-end">
+                        <div class="bg-emerald-600 text-white px-3 py-2 rounded-2xl rounded-tr-none max-w-[80%]">
+                            <p>${c.text}</p>
+                        </div>
+                    </div>`;
+                } else {
+                    return `
+                    <div class="flex justify-start">
+                        <div class="bg-slate-100 text-slate-800 px-3 py-2 rounded-2xl rounded-tl-none max-w-[80%]">
+                            <p class="font-bold text-[10px] text-emerald-700 mb-0.5">${state.activeOrder.driverName}</p>
+                            <p>${c.text}</p>
+                        </div>
+                    </div>`;
+                }
+            }).join('');
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function sendDriverChat(e) {
+            e.preventDefault();
+            if (!state.activeOrder) return;
+            const input = document.getElementById('driver-chat-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            state.activeOrder.chats.push({ sender: 'user', text: msg, time: 'Baru saja' });
+            input.value = '';
+            renderDriverChat();
+
+            // Simulated contextual auto-reply from Driver
+            setTimeout(() => {
+                if (!state.activeOrder) return;
+                const replies = [
+                    'Siap Kak, tercatat! Saya pastikan aman sampai tujuan.',
+                    'Baik Kak, terima kasih infonya. Posisi saya sudah dekat.',
+                    'Oke siap Kak, ditunggu sebentar ya!'
+                ];
+                const reply = replies[Math.floor(Math.random() * replies.length)];
+                state.activeOrder.chats.push({ sender: 'driver', text: reply, time: 'Baru saja' });
+                renderDriverChat();
+            }, 900);
+        }
+
+        // --- RATING & REVIEW MODAL ---
+        function openRatingModal(orderId, driverName) {
+            state.ratingTargetOrderId = orderId;
+            state.selectedStarCount = 5;
+            document.getElementById('rating-modal-subtitle').textContent = `Bagaimana pengalamanmu bersama Mitra ${driverName}?`;
+            document.getElementById('rating-comment-input').value = '';
+            selectRatingStar(5);
+            document.getElementById('modal-rating').classList.remove('hidden');
+            document.getElementById('modal-rating').classList.add('flex');
+        }
+
+        function closeRatingModal() {
+            document.getElementById('modal-rating').classList.add('hidden');
+            document.getElementById('modal-rating').classList.remove('flex');
+        }
+
+        function selectRatingStar(count) {
+            state.selectedStarCount = count;
+            const stars = document.querySelectorAll('#star-rating-container .star-btn');
+            stars.forEach((btn, idx) => {
+                if (idx < count) {
+                    btn.className = 'star-btn text-3xl text-amber-400 hover:scale-110 transition';
+                } else {
+                    btn.className = 'star-btn text-3xl text-slate-300 hover:scale-110 transition';
+                }
+            });
+        }
+
+        function submitOrderRating() {
+            const ord = state.ordersHistory.find(o => o.id === state.ratingTargetOrderId);
+            if (ord) {
+                ord.rating = state.selectedStarCount;
+                ord.review = document.getElementById('rating-comment-input').value.trim() || 'Pelayanan sangat memuaskan!';
+            }
+            closeRatingModal();
+            renderOrdersHistory();
+            showToast(`Terima kasih atas rating ${state.selectedStarCount} bintang Anda!`);
+        }
+
+        // --- ORDERS HISTORY LIST ---
+        function filterOrders(filter) {
+            state.orderFilter = filter;
+            const tabs = ['all', 'active', 'completed', 'cancelled'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`order-tab-${t}`);
+                if (t === filter) {
+                    btn.className = 'order-filter-btn bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-full';
+                } else {
+                    btn.className = 'order-filter-btn bg-slate-100 text-slate-700 text-xs font-semibold px-4 py-2 rounded-full';
+                }
+            });
+            renderOrdersHistory();
+        }
+
+        function renderOrdersHistory() {
+            const container = document.getElementById('orders-history-list');
+            const filtered = state.ordersHistory.filter(o => state.orderFilter === 'all' || o.status === state.orderFilter);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                <div class="bg-white border border-slate-200 rounded-2xl p-8 text-center">
+                    <i class="fa-solid fa-box-open text-3xl text-slate-300 mb-2"></i>
+                    <p class="text-sm font-bold text-slate-700">Belum ada riwayat pesanan pada kategori ini</p>
+                    <p class="text-xs text-slate-400 mt-0.5">Yuk pesan NusaRide, NusaCar, NusaFood, atau NusaSend sekarang!</p>
+                </div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(o => {
+                let badgeClass = 'bg-emerald-100 text-emerald-800';
+                if (o.status === 'active') badgeClass = 'bg-amber-100 text-amber-800';
+                if (o.status === 'cancelled') badgeClass = 'bg-rose-100 text-rose-800';
+
+                return `
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="flex items-start gap-3.5">
+                        <div class="w-12 h-12 rounded-2xl bg-slate-100 text-emerald-600 flex items-center justify-center text-xl shrink-0">
+                            <i class="fa-solid ${o.icon}"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="font-extrabold text-sm text-slate-800">${o.service}</span>
+                                <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full ${badgeClass}">${o.statusText}</span>
+                                <span class="text-[11px] text-slate-400">#${o.id} • ${o.time}</span>
+                            </div>
+                            <p class="text-xs font-semibold text-slate-700 mt-1">${o.route}</p>
+                            <p class="text-xs text-slate-500 mt-0.5">Mitra: ${o.driverName} (${o.plate})</p>
+                            ${o.rating ? `
+                                <div class="mt-2 bg-amber-50 border border-amber-200/70 rounded-xl px-3 py-1.5 text-xs inline-block">
+                                    <span class="text-amber-500 font-bold">${'★'.repeat(o.rating)}</span>
+                                    <span class="text-slate-600 ml-1">"${o.review}"</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <div class="flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 pt-2.5 sm:pt-0 border-slate-100 shrink-0">
+                        <div class="text-left sm:text-right">
+                            <p class="text-sm font-extrabold text-slate-900">${formatRupiah(o.total)}</p>
+                            <span class="text-[11px] text-slate-500">${o.paymentMethod}</span>
+                        </div>
+                        <div class="mt-2 flex gap-2">
+                            ${o.status === 'active' ? `
+                                <button onclick="openTrackingModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-xl transition">
+                                    Lacak Pesanan
+                                </button>
+                            ` : ''}
+                            ${o.status === 'completed' && !o.rating ? `
+                                <button onclick="openRatingModal('${o.id}', '${o.driverName}')" class="bg-amber-400 hover:bg-amber-500 text-slate-950 text-xs font-bold px-3.5 py-1.5 rounded-xl transition">
+                                    <i class="fa-solid fa-star mr-1"></i> Beri Rating
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // --- E-WALLET (NUSAPAY) LOGIC ---
+        function renderWalletUI() {
+            const formatted = formatRupiah(state.walletBalance);
+            document.getElementById('home-wallet-balance').textContent = formatted;
+            document.getElementById('wallet-page-balance').textContent = formatted;
+            document.getElementById('transport-wallet-bal').textContent = `Saldo: ${formatted}`;
+
+            const txContainer = document.getElementById('wallet-transactions-list');
+            txContainer.innerHTML = state.walletTransactions.map(tx => `
+                <div class="p-4 flex items-center justify-between hover:bg-slate-50 transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl ${tx.type === 'in' ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'} flex items-center justify-center text-sm">
+                            <i class="fa-solid ${tx.type === 'in' ? 'fa-arrow-down-long' : 'fa-arrow-up-long'}"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-xs sm:text-sm text-slate-800">${tx.title}</h4>
+                            <p class="text-[11px] text-slate-400">${tx.date} • ${tx.method}</p>
+                        </div>
+                    </div>
+                    <span class="font-extrabold text-sm ${tx.type === 'in' ? 'text-emerald-600' : 'text-slate-800'}">
+                        ${tx.type === 'in' ? '+' : '-'}${formatRupiah(tx.amount)}
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        function deductWallet(amount, title) {
+            state.walletBalance -= amount;
+            state.walletTransactions.unshift({
+                id: 'TRX-' + Math.floor(100 + Math.random() * 900),
+                title,
+                type: 'out',
+                amount,
+                date: 'Baru saja',
+                method: 'Saldo NusaPay'
+            });
+            renderWalletUI();
+        }
+
+        function openTopUpModal() {
+            document.getElementById('modal-topup').classList.remove('hidden');
+            document.getElementById('modal-topup').classList.add('flex');
+        }
+
+        function closeTopUpModal() {
+            document.getElementById('modal-topup').classList.add('hidden');
+            document.getElementById('modal-topup').classList.remove('flex');
+        }
+
+        function setTopUpNominal(val) {
+            document.getElementById('topup-amount-input').value = val;
+        }
+
+        function confirmTopUp() {
+            const amount = parseInt(document.getElementById('topup-amount-input').value, 10);
+            const source = document.getElementById('topup-source').value;
+
+            if (!amount || amount < 10000) {
+                showToast('Minimum pengisian saldo adalah Rp 10.000', 'error');
+                return;
+            }
+
+            state.walletBalance += amount;
+            state.walletTransactions.unshift({
+                id: 'TOP-' + Math.floor(100 + Math.random() * 900),
+                title: 'Top Up Saldo NusaPay',
+                type: 'in',
+                amount,
+                date: 'Baru saja',
+                method: source
+            });
+
+            renderWalletUI();
+            closeTopUpModal();
+            showToast(`Top Up ${formatRupiah(amount)} via ${source} berhasil!`);
+        }
+
+        // --- PROMOS & HOME PREVIEWS ---
+        function renderPromosUI() {
+            const homeList = document.getElementById('home-promo-list');
+            const fullList = document.getElementById('promo-full-list');
+
+            homeList.innerHTML = state.promos.slice(0, 3).map(p => `
+                <div class="bg-gradient-to-br from-${p.color}-600 to-${p.color}-700 text-white rounded-2xl p-4 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full">${p.tag}</span>
+                        <h4 class="font-extrabold text-sm mt-2">${p.title}</h4>
+                        <p class="text-xs text-white/85 mt-1">${p.desc}</p>
+                    </div>
+                    <div class="mt-3 pt-2.5 border-t border-white/15 flex items-center justify-between">
+                        <span class="text-xs font-mono font-extrabold bg-black/20 px-2.5 py-1 rounded-lg">${p.code}</span>
+                        <button onclick="usePromoAction('${p.tag}', '${p.code}')" class="bg-white text-slate-900 text-xs font-bold px-3 py-1 rounded-lg hover:bg-slate-100 transition">Pakai</button>
+                    </div>
+                </div>
+            `).join('');
+
+            fullList.innerHTML = state.promos.map(p => `
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-bold text-${p.color}-700 bg-${p.color}-100 px-2.5 py-0.5 rounded-full">${p.tag}</span>
+                            <span class="text-xs font-mono font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg">Kode: ${p.code}</span>
+                        </div>
+                        <h4 class="font-extrabold text-slate-800 text-sm mt-2">${p.title}</h4>
+                        <p class="text-xs text-slate-500 mt-1">${p.desc}</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+                        <button onclick="usePromoAction('${p.tag}', '${p.code}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
+                            Gunakan Sekarang
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function usePromoAction(tag, code) {
+            if (tag === 'Transportasi') {
+                openService('ride');
+                document.getElementById('transport-promo-select').value = code;
+                calculateTransportPrice();
+            } else if (tag === 'NusaFood') {
+                openService('food');
+                document.getElementById('food-promo-select').value = code;
+                updateCartUI();
+            } else {
+                openService('send');
+                document.getElementById('send-promo-select').value = code;
+                calculateSendPrice();
+            }
+            showToast(`Voucher ${code} diterapkan otomatis!`);
+        }
+
+        function claimPromoCode() {
+            const input = document.getElementById('custom-promo-input');
+            const code = input.value.trim().toUpperCase();
+            if (!code) {
+                showToast('Masukkan kode promo terlebih dahulu.', 'error');
+                return;
+            }
+            input.value = '';
+            showToast(`Kode promo "${code}" berhasil diverifikasi dan siap digunakan!`);
+        }
+
+        function renderHomeFoodPreview() {
+            const container = document.getElementById('home-food-preview');
+            container.innerHTML = state.restaurants.map(r => `
+                <div onclick="state.activeRestoId='${r.id}'; openService('food')" class="cursor-pointer bg-white border border-slate-200 hover:border-rose-400 rounded-2xl p-4 shadow-sm transition flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-${r.color}-100 text-${r.color}-600 flex items-center justify-center text-xl shrink-0">
+                        <i class="fa-solid ${r.icon}"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <span class="text-[10px] font-bold uppercase text-rose-600">${r.category}</span>
+                        <h4 class="font-bold text-slate-800 text-sm truncate">${r.name}</h4>
+                        <p class="text-xs text-slate-500">★ ${r.rating} • ${r.distance}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- INITIALIZATION ---
+        window.onload = function () {
+            loadStateFromStorage();
+            applyBrandConfig();
+            populateAddressSelects();
+            renderWalletUI();
+            renderPromosUI();
+            renderHomeFoodPreview();
+            renderSavedAddresses();
+            renderOrdersHistory();
+        };
+    </script>
+</body>
+</html>
