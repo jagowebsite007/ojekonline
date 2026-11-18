@@ -1,0 +1,178 @@
+/**
+ * ============================================================================
+ * FILE 2: setup.gs
+ * Deskripsi: Script inisialisasi untuk membuat struktur tabel, header kolom,
+ *            format warna, serta contoh data awal di Google Spreadsheet.
+ *
+ * CARA PENGGUNAAN:
+ * 1. Buka Google Spreadsheet Anda -> klik menu "Ekstensi" -> "Apps Script".
+ * 2. Buat 2 file di editor Apps Script: `kode.gs` dan `setup.gs`.
+ * 3. Jalankan fungsi `setupDatabase()` dari file `setup.gs` ini satu kali
+ *    (klik tombol "Jalankan" / "Run" di atas editor).
+ * 4. Klik "Terapkan" (Deploy) -> "Deployment baru" -> Jenis: "Aplikasi Web"
+ *    -> Eksekusi sebagai: "Saya" -> Yang memiliki akses: "Siapa saja".
+ * 5. Salin URL Web App yang dihasilkan ke Panel Admin di aplikasi web Anda.
+ * ============================================================================
+ */
+
+var DB_CONFIG = {
+  CUSTOMER_SHEET_NAME: 'Data_Pelanggan',
+  LOG_SHEET_NAME: 'Log_Aktivitas',
+  HEADER_BG_COLOR: '#059669', // Warna hijau emerald sesuai tema aplikasi
+  HEADER_TEXT_COLOR: '#ffffff'
+};
+
+/**
+ * Menambahkan menu khusus di toolbar Google Spreadsheet saat file dibuka
+ */
+function onOpen() {
+  var ui = SpreadsheetApp.getUi();
+  ui.createMenu('⚡ Admin Database App')
+    .addItem('1. Jalankan Setup Database Otomatis', 'setupDatabase')
+    .addItem('2. Tambah Contoh Data Pelanggan (Tes)', 'insertSampleCustomer')
+    .addSeparator()
+    .addItem('3. Bersihkan Log Aktivitas', 'clearActivityLogs')
+    .addToUi();
+}
+
+/**
+ * FUNGSI UTAMA SETUP DATABASE:
+ * Jalankan fungsi ini pertama kali untuk menyiapkan seluruh tabel & kolom.
+ */
+function setupDatabase() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  // 1. Setup Sheet Utama: Data_Pelanggan
+  var customerHeaders = [
+    'ID Pelanggan',
+    'Waktu Terdaftar',
+    'Terakhir Diperbarui',
+    'Nama Pengguna',
+    'Alamat',
+    'No WA',
+    'Email',
+    'Aksi Terakhir'
+  ];
+  var customerSheet = createOrFormatSheet(ss, DB_CONFIG.CUSTOMER_SHEET_NAME, customerHeaders, [130, 150, 150, 180, 320, 140, 200, 160]);
+
+  // 2. Setup Sheet Riwayat: Log_Aktivitas
+  var logHeaders = [
+    'Waktu Aktivitas',
+    'ID Pelanggan',
+    'Nama Pengguna',
+    'Alamat',
+    'No WA',
+    'Email',
+    'Aksi'
+  ];
+  createOrFormatSheet(ss, DB_CONFIG.LOG_SHEET_NAME, logHeaders, [150, 130, 180, 320, 140, 200, 160]);
+
+  // Tambahkan 1 data contoh jika sheet Data_Pelanggan masih kosong
+  if (customerSheet.getLastRow() === 1) {
+    insertSampleCustomer();
+  }
+
+  Logger.log('Setup Database Selesai! Sheet "' + DB_CONFIG.CUSTOMER_SHEET_NAME + '" dan "' + DB_CONFIG.LOG_SHEET_NAME + '" siap digunakan.');
+}
+
+/**
+ * Memastikan sheet database sudah tersedia sebelum doPost / doGet memproses data.
+ * Dipanggil secara otomatis oleh kode.gs.
+ */
+function ensureDatabaseReady() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var customerSheet = ss.getSheetByName(DB_CONFIG.CUSTOMER_SHEET_NAME);
+  var logSheet = ss.getSheetByName(DB_CONFIG.LOG_SHEET_NAME);
+
+  if (!customerSheet || !logSheet) {
+    setupDatabase();
+  }
+}
+
+/**
+ * Membuat sheet jika belum ada dan mengatur tampilan header secara rapi
+ */
+function createOrFormatSheet(ss, sheetName, headers, colWidths) {
+  var sheet = ss.getSheetByName(sheetName);
+  if (!sheet) {
+    sheet = ss.insertSheet(sheetName);
+  }
+
+  // Jika baris pertama belum memiliki header, tuliskan header
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(headers);
+  } else {
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  }
+
+  // Styling baris Header
+  var headerRange = sheet.getRange(1, 1, 1, headers.length);
+  headerRange
+    .setBackground(DB_CONFIG.HEADER_BG_COLOR)
+    .setFontColor(DB_CONFIG.HEADER_TEXT_COLOR)
+    .setFontWeight('bold')
+    .setFontFamily('Arial')
+    .setFontSize(10)
+    .setHorizontalAlignment('center')
+    .setVerticalAlignment('middle');
+
+  // Bekukan baris pertama (Freeze Header) & atur tinggi baris header
+  sheet.setFrozenRows(1);
+  sheet.setRowHeight(1, 34);
+
+  // Atur lebar masing-masing kolom agar mudah dibaca
+  if (colWidths && colWidths.length === headers.length) {
+    for (var i = 0; i < colWidths.length; i++) {
+      sheet.setColumnWidth(i + 1, colWidths[i]);
+    }
+  }
+
+  return sheet;
+}
+
+/**
+ * Fungsi untuk menguji penyimpanan data pelanggan langsung dari editor Apps Script
+ */
+function insertSampleCustomer() {
+  ensureDatabaseReady();
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var customerSheet = ss.getSheetByName(DB_CONFIG.CUSTOMER_SHEET_NAME);
+
+  var sampleData = {
+    timestamp: new Date(),
+    nama: 'Budi Santoso',
+    alamat: 'Jl. Jenderal Sudirman No. 45, Senayan (Rumah: Jl. Jenderal Sudirman No. 45, Senayan)',
+    no_wa: '0812-3456-7890',
+    email: 'budi.santoso@email.com',
+    aksi: 'Data Awal Setup'
+  };
+
+  var res = upsertCustomerRecord(customerSheet, sampleData);
+
+  var logSheet = ss.getSheetByName(DB_CONFIG.LOG_SHEET_NAME);
+  if (logSheet) {
+    logSheet.appendRow([
+      sampleData.timestamp,
+      res.customerId,
+      sampleData.nama,
+      sampleData.alamat,
+      "'" + sampleData.no_wa,
+      sampleData.email,
+      sampleData.aksi
+    ]);
+  }
+
+  Logger.log('Contoh data pelanggan berhasil dimasukkan dengan ID: ' + res.customerId);
+}
+
+/**
+ * Menghapus isi riwayat pada sheet Log_Aktivitas (tanpa menghapus data pelanggan utama)
+ */
+function clearActivityLogs() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var logSheet = ss.getSheetByName(DB_CONFIG.LOG_SHEET_NAME);
+  if (logSheet && logSheet.getLastRow() > 1) {
+    logSheet.getRange(2, 1, logSheet.getLastRow() - 1, logSheet.getLastColumn()).clearContent();
+    Logger.log('Log aktivitas berhasil dibersihkan.');
+  }
+}

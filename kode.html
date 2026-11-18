@@ -1,0 +1,244 @@
+/**
+ * ============================================================================
+ * FILE 1: kode.gs
+ * Deskripsi: Handler utama Web App (doPost & doGet) untuk menerima dan
+ *            menyimpan data pelanggan (Nama Pengguna, Alamat, No WA, Email)
+ *            dari aplikasi web ke Google Spreadsheet.
+ * ============================================================================
+ */
+
+/**
+ * Fungsi doGet dijalankan saat URL Web App dibuka langsung melalui browser.
+ * Berguna untuk memastikan koneksi Web App sudah aktif atau mengambil data.
+ */
+function doGet(e) {
+  try {
+    // Pastikan struktur sheet sudah siap
+    if (typeof ensureDatabaseReady === 'function') {
+      ensureDatabaseReady();
+    }
+
+    var action = (e && e.parameter && e.parameter.action) ? e.parameter.action : 'status';
+
+    // Jika parameter ?action=list diberikan, kembalikan daftar pelanggan dalam format JSON
+    if (action === 'list') {
+      var customers = getAllCustomers();
+      return createJsonResponse({
+        status: 'success',
+        total: customers.length,
+        data: customers
+      });
+    }
+
+    // Respons default untuk pengecekan status URL Web App
+    return createJsonResponse({
+      status: 'active',
+      message: 'API Database Google Spreadsheet aktif dan siap menerima data pelanggan.',
+      columns: ['ID Pelanggan', 'Waktu Terdaftar', 'Terakhir Diperbarui', 'Nama Pengguna', 'Alamat', 'No WA', 'Email', 'Aksi Terakhir'],
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    return createJsonResponse({
+      status: 'error',
+      message: error.toString()
+    });
+  }
+}
+
+/**
+ * Fungsi doPost dijalankan otomatis saat aplikasi web mengirim data pelanggan.
+ * Menyimpan/memperbarui data ke sheet "Data_Pelanggan" dan mencatat riwayat ke "Log_Aktivitas".
+ */
+function doPost(e) {
+  var lock = LockService.getScriptLock();
+  try {
+    // Tunggu maksimal 10 detik agar tidak terjadi bentrok penulisan baris bersamaan
+    lock.waitLock(10000);
+
+    // Pastikan sheet sudah dibuat (memanggil fungsi di setup.gs)
+    if (typeof ensureDatabaseReady === 'function') {
+      ensureDatabaseReady();
+    }
+
+    if (!e || !e.postData || !e.postData.contents) {
+      throw new Error('Tidak ada data JSON yang dikirimkan pada body request.');
+    }
+
+    // Parsing payload JSON dari aplikasi web
+    var payload = JSON.parse(e.postData.contents);
+    var timestamp = new Date();
+
+    var nama   = (payload.nama || '').toString().trim();
+    var alamat = (payload.alamat || '').toString().trim();
+    var noWa   = (payload.no_wa || '').toString().trim();
+    var email  = (payload.email || '').toString().trim();
+    var aksi   = (payload.aksi || 'Update Profil').toString().trim();
+
+    if (!nama && !noWa && !email) {
+      throw new Error('Data pelanggan tidak lengkap (Nama, No WA, atau Email wajib diisi).');
+    }
+
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+
+    // 1. SIMPAN ATAU PERBARUI (UPSERT) KE SHEET "Data_Pelanggan"
+    var customerSheet = ss.getSheetByName(DB_CONFIG.CUSTOMER_SHEET_NAME);
+    var upsertResult = upsertCustomerRecord(customerSheet, {
+      timestamp: timestamp,
+      nama: nama,
+      alamat: alamat,
+      no_wa: noWa,
+      email: email,
+      aksi: aksi
+    });
+
+    // 2. CATAT RIWAYAT KE SHEET "Log_Aktivitas"
+    var logSheet = ss.getSheetByName(DB_CONFIG.LOG_SHEET_NAME);
+    if (logSheet) {
+      logSheet.appendRow([
+        timestamp,
+        upsertResult.customerId,
+        nama,
+        alamat,
+        "'" + noWa, // Tanda petik tunggal menjaga angka 0 di depan nomor WA
+        email,
+        aksi
+      ]);
+    }
+
+    return createJsonResponse({
+      status: 'success',
+      operation: upsertResult.operation,
+      customerId: upsertResult.customerId,
+      message: 'Data pelanggan berhasil disimpan ke Google Spreadsheet.',
+      timestamp: timestamp.toISOString()
+    });
+
+  } catch (error) {
+    return createJsonResponse({
+      status: 'error',
+      message: error.toString()
+    });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * Menyimpan pelanggan baru atau memperbarui baris pelanggan lama
+ * jika Email atau Nomor WA sudah terdaftar di sheet "Data_Pelanggan".
+ */
+function upsertCustomerRecord(sheet, record) {
+  var lastRow = sheet.getLastRow();
+  var foundRowIndex = -1;
+  var existingCustomerId = '';
+  var registeredTime = record.timestamp;
+
+  // Cari apakah pelanggan sudah terdaftar berdasarkan No WA atau Email
+  if (lastRow > 1) {
+    var values = sheet.getRange(2, 1, lastRow - 1, 8).getValues();
+    var cleanTargetWa = normalizePhone(record.no_wa);
+    var cleanTargetEmail = record.email.toLowerCase();
+
+    for (var i = 0; i < values.length; i++) {
+      var rowId = values[i][0];
+      var rowRegTime = values[i][1];
+      var rowWa = normalizePhone(values[i][5]);
+      var rowEmail = (values[i][6] || '').toString().toLowerCase().trim();
+
+      var matchWa = cleanTargetWa && rowWa && (cleanTargetWa === rowWa);
+      var matchEmail = cleanTargetEmail && rowEmail && (cleanTargetEmail === rowEmail);
+
+      if (matchWa || matchEmail) {
+        foundRowIndex = i + 2; // +2 karena baris 1 adalah header dan array 0-indexed
+        existingCustomerId = rowId;
+        registeredTime = rowRegTime || record.timestamp;
+        break;
+      }
+    }
+  }
+
+  // Jika pelanggan sudah ada, perbarui barisnya
+  if (foundRowIndex !== -1) {
+    sheet.getRange(foundRowIndex, 1, 1, 8).setValues([[
+      existingCustomerId,
+      registeredTime,
+      record.timestamp,
+      record.nama,
+      record.alamat,
+      "'" + record.no_wa,
+      record.email,
+      record.aksi
+    ]]);
+
+    return {
+      operation: 'updated',
+      customerId: existingCustomerId,
+      row: foundRowIndex
+    };
+  }
+
+  // Jika pelanggan baru, tambahkan baris baru dengan ID unik
+  var newCustomerId = 'USR-' + Utilities.formatDate(record.timestamp, Session.getScriptTimeZone(), 'yyMMdd') + '-' + Math.floor(100 + Math.random() * 900);
+  sheet.appendRow([
+    newCustomerId,
+    record.timestamp,
+    record.timestamp,
+    record.nama,
+    record.alamat,
+    "'" + record.no_wa,
+    record.email,
+    record.aksi
+  ]);
+
+  return {
+    operation: 'inserted',
+    customerId: newCustomerId,
+    row: sheet.getLastRow()
+  };
+}
+
+/**
+ * Mengambil seluruh daftar pelanggan dari sheet "Data_Pelanggan"
+ */
+function getAllCustomers() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(DB_CONFIG.CUSTOMER_SHEET_NAME);
+  if (!sheet || sheet.getLastRow() <= 1) {
+    return [];
+  }
+
+  var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 8).getValues();
+  var list = [];
+
+  for (var i = 0; i < data.length; i++) {
+    list.push({
+      id_pelanggan: data[i][0],
+      waktu_terdaftar: data[i][1],
+      terakhir_diperbarui: data[i][2],
+      nama: data[i][3],
+      alamat: data[i][4],
+      no_wa: data[i][5],
+      email: data[i][6],
+      aksi_terakhir: data[i][7]
+    });
+  }
+  return list;
+}
+
+/**
+ * Membersihkan format nomor telepon untuk perbandingan duplikasi
+ */
+function normalizePhone(phone) {
+  if (!phone) return '';
+  return phone.toString().replace(/[^0-9]/g, '');
+}
+
+/**
+ * Helper untuk membuat output JSON standar dari Google Apps Script
+ */
+function createJsonResponse(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
