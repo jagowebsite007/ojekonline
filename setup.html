@@ -9,9 +9,11 @@
  * 2. Pastikan terdapat 2 file: `Code.gs` (atau `Kode.gs`) dan `setup.gs`.
  * 3. Jalankan fungsi `setupDatabase()` dari file `setup.gs` ini satu kali
  *    (klik tombol "Jalankan" / "Run" di atas editor).
- * 4. Klik "Terapkan" (Deploy) -> "Deployment baru" -> Jenis: "Aplikasi Web"
+ * 4. Klik "Terapkan" (Deploy) -> "Deployment baru" / "Kelola deployment"
+ *    -> pilih "Versi baru" -> Jenis: "Aplikasi Web"
  *    -> Eksekusi sebagai: "Saya" -> Yang memiliki akses: "Siapa saja".
- * 5. Salin URL Web App yang dihasilkan ke Panel Admin di aplikasi web Anda.
+ * 5. Salin URL Web App (.../exec) yang sama persis ke Aplikasi Pelanggan
+ *    (index.html) dan Aplikasi Driver Anda.
  * ============================================================================
  */
 
@@ -63,7 +65,7 @@ function setupDatabase() {
     [150, 160, 160, 340, 100]
   );
 
-  // 3. Setup Sheet Pesanan Real-Time: Data_Pesanan (Dilengkapi Koordinat GPS & Link Google Maps)
+  // 3. Setup Sheet Pesanan Real-Time: Data_Pesanan (16 Kolom: Order + Chat + GPS + Google Maps)
   var orderHeaders = [
     'ID Order',
     'Waktu Order',
@@ -126,6 +128,7 @@ function setupDatabase() {
     [140, 150, 160, 140, 140, 160, 160, 130, 110]
   );
 
+  SpreadsheetApp.flush();
   Logger.log('Setup database selesai. Seluruh 5 sheet siap digunakan.');
 }
 
@@ -166,7 +169,7 @@ function createOrFormatSheet(ss, sheetName, headers, colWidths) {
 }
 
 /**
- * Memastikan seluruh sheet dan kolom GPS tersedia sebelum doGet / doPost berjalan.
+ * Memastikan seluruh sheet dan 16 kolom GPS tersedia sebelum doGet / doPost berjalan.
  */
 function ensureDatabaseReady() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -176,7 +179,6 @@ function ensureDatabaseReady() {
   var driverSheet = ss.getSheetByName(DB_CONFIG.DRIVER_SHEET_NAME);
   var withdrawSheet = ss.getSheetByName(DB_CONFIG.WITHDRAW_SHEET_NAME);
 
-  // Pastikan seluruh sheet ada dan kolom GPS pada Data_Pesanan sudah ter-upgrade (16 kolom)
   var needsOrderUpgrade = orderSheet && orderSheet.getLastColumn() < 16;
 
   if (!customerSheet || !logSheet || !orderSheet || !driverSheet || !withdrawSheet || needsOrderUpgrade) {
