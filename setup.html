@@ -2,11 +2,11 @@
  * ============================================================================
  * FILE 2: setup.gs
  * Deskripsi: Script inisialisasi untuk membuat struktur tabel, header kolom,
- *            format warna, serta contoh data awal di Google Spreadsheet.
+ *            format warna, serta upgrade kolom GPS di Google Spreadsheet.
  *
  * CARA PENGGUNAAN:
  * 1. Buka Google Spreadsheet Anda -> klik menu "Ekstensi" -> "Apps Script".
- * 2. Buat 2 file di editor Apps Script: `Code.gs` dan `setup.gs`.
+ * 2. Pastikan terdapat 2 file: `Code.gs` (atau `Kode.gs`) dan `setup.gs`.
  * 3. Jalankan fungsi `setupDatabase()` dari file `setup.gs` ini satu kali
  *    (klik tombol "Jalankan" / "Run" di atas editor).
  * 4. Klik "Terapkan" (Deploy) -> "Deployment baru" -> Jenis: "Aplikasi Web"
@@ -14,7 +14,55 @@
  * 5. Salin URL Web App yang dihasilkan ke Panel Admin di aplikasi web Anda.
  * ============================================================================
  */
-// ... existing code ...
+
+var DB_CONFIG = {
+  CUSTOMER_SHEET_NAME: 'Data_Pelanggan',
+  LOG_SHEET_NAME: 'Log_Aktivitas',
+  ORDER_SHEET_NAME: 'Data_Pesanan',
+  DRIVER_SHEET_NAME: 'Data_Driver',
+  WITHDRAW_SHEET_NAME: 'Data_Penarikan'
+};
+
+/**
+ * Menyiapkan seluruh sheet database dan memformat header kolom secara otomatis.
+ * Aman dijalankan ulang tanpa menghapus data yang sudah tersimpan.
+ */
+function setupDatabase() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  // 1. Setup Sheet Pelanggan: Data_Pelanggan
+  var customerHeaders = [
+    'ID Pelanggan',
+    'Waktu Terdaftar',
+    'Terakhir Diperbarui',
+    'Nama Pengguna',
+    'Alamat',
+    'No WA',
+    'Email',
+    'Aksi Terakhir'
+  ];
+  createOrFormatSheet(
+    ss,
+    DB_CONFIG.CUSTOMER_SHEET_NAME,
+    customerHeaders,
+    [140, 150, 150, 170, 260, 140, 200, 180]
+  );
+
+  // 2. Setup Sheet Log Aktivitas: Log_Aktivitas
+  var logHeaders = [
+    'Waktu',
+    'Tipe Aksi',
+    'Pelaku',
+    'Detail Aktivitas',
+    'Status'
+  ];
+  createOrFormatSheet(
+    ss,
+    DB_CONFIG.LOG_SHEET_NAME,
+    logHeaders,
+    [150, 160, 160, 340, 100]
+  );
+
   // 3. Setup Sheet Pesanan Real-Time: Data_Pesanan (Dilengkapi Koordinat GPS & Link Google Maps)
   var orderHeaders = [
     'ID Order',
@@ -42,7 +90,84 @@
   );
 
   // 4. Setup Sheet Mitra Pengemudi: Data_Driver
-// ... existing code ...
+  var driverHeaders = [
+    'ID Driver',
+    'Terakhir Aktif',
+    'Nama Driver',
+    'No WA Driver',
+    'Jenis Kendaraan',
+    'Plat Kendaraan',
+    'Status Kerja',
+    'Total Pendapatan'
+  ];
+  createOrFormatSheet(
+    ss,
+    DB_CONFIG.DRIVER_SHEET_NAME,
+    driverHeaders,
+    [140, 150, 170, 140, 130, 140, 120, 140]
+  );
+
+  // 5. Setup Sheet Penarikan Saldo Driver: Data_Penarikan
+  var withdrawHeaders = [
+    'ID Penarikan',
+    'Waktu Pengajuan',
+    'Nama Driver',
+    'No WA Driver',
+    'Bank / E-Wallet',
+    'No Rekening',
+    'Atas Nama',
+    'Nominal Tarik',
+    'Status'
+  ];
+  createOrFormatSheet(
+    ss,
+    DB_CONFIG.WITHDRAW_SHEET_NAME,
+    withdrawHeaders,
+    [140, 150, 160, 140, 140, 160, 160, 130, 110]
+  );
+
+  Logger.log('Setup database selesai. Seluruh 5 sheet siap digunakan.');
+}
+
+/**
+ * Helper untuk membuat sheet baru (atau meng-upgrade header kolom jika sheet sudah ada)
+ * serta mengatur gaya header dan lebar kolom.
+ */
+function createOrFormatSheet(ss, sheetName, headers, colWidths) {
+  var sheet = ss.getSheetByName(sheetName);
+  if (!sheet) {
+    sheet = ss.insertSheet(sheetName);
+  }
+
+  // Pastikan jumlah kolom mencukupi sebelum menulis header
+  if (sheet.getMaxColumns() < headers.length) {
+    sheet.insertColumnsAfter(sheet.getMaxColumns(), headers.length - sheet.getMaxColumns());
+  }
+
+  var headerRange = sheet.getRange(1, 1, 1, headers.length);
+  headerRange.setValues([headers]);
+  headerRange
+    .setBackground('#059669')
+    .setFontColor('#ffffff')
+    .setFontWeight('bold')
+    .setHorizontalAlignment('center')
+    .setVerticalAlignment('middle');
+
+  sheet.setRowHeight(1, 32);
+  sheet.setFrozenRows(1);
+
+  if (Array.isArray(colWidths)) {
+    for (var i = 0; i < colWidths.length; i++) {
+      sheet.setColumnWidth(i + 1, colWidths[i]);
+    }
+  }
+
+  return sheet;
+}
+
+/**
+ * Memastikan seluruh sheet dan kolom GPS tersedia sebelum doGet / doPost berjalan.
+ */
 function ensureDatabaseReady() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var customerSheet = ss.getSheetByName(DB_CONFIG.CUSTOMER_SHEET_NAME);
@@ -58,7 +183,10 @@ function ensureDatabaseReady() {
     setupDatabase();
   }
 }
-// ... existing code ...
+
+/**
+ * Utilitas opsional: membersihkan isi sheet Log_Aktivitas tanpa menghapus header.
+ */
 function clearActivityLogs() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var logSheet = ss.getSheetByName(DB_CONFIG.LOG_SHEET_NAME);
