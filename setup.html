@@ -18,6 +18,9 @@
 var DB_CONFIG = {
   CUSTOMER_SHEET_NAME: 'Data_Pelanggan',
   LOG_SHEET_NAME: 'Log_Aktivitas',
+  ORDER_SHEET_NAME: 'Data_Pesanan',
+  DRIVER_SHEET_NAME: 'Data_Driver',
+  WITHDRAW_SHEET_NAME: 'Penarikan_Saldo',
   HEADER_BG_COLOR: '#059669', // Warna hijau emerald sesuai tema aplikasi
   HEADER_TEXT_COLOR: '#ffffff'
 };
@@ -67,12 +70,56 @@ function setupDatabase() {
   ];
   createOrFormatSheet(ss, DB_CONFIG.LOG_SHEET_NAME, logHeaders, [150, 130, 180, 320, 140, 200, 160]);
 
+  // 3. Setup Sheet Pesanan Real-Time: Data_Pesanan
+  var orderHeaders = [
+    'ID Order',
+    'Waktu Order',
+    'Layanan',
+    'Nama Pelanggan',
+    'No WA Pelanggan',
+    'Rute / Detail',
+    'Total Tarif',
+    'Metode Bayar',
+    'Status Order',
+    'Nama Driver',
+    'Plat Kendaraan',
+    'Pesan Chat'
+  ];
+  createOrFormatSheet(ss, DB_CONFIG.ORDER_SHEET_NAME, orderHeaders, [120, 150, 110, 160, 140, 320, 120, 110, 160, 160, 160, 260]);
+
+  // 4. Setup Sheet Mitra Pengemudi: Data_Driver
+  var driverHeaders = [
+    'ID Driver',
+    'Terakhir Aktif',
+    'Nama Driver',
+    'No WA Driver',
+    'Jenis Kendaraan',
+    'Plat Nomor',
+    'Status Kerja',
+    'Total Pendapatan'
+  ];
+  createOrFormatSheet(ss, DB_CONFIG.DRIVER_SHEET_NAME, driverHeaders, [130, 150, 180, 140, 130, 130, 120, 150]);
+
+  // 5. Setup Sheet Penarikan Saldo Driver: Penarikan_Saldo
+  var withdrawHeaders = [
+    'ID Penarikan',
+    'Waktu Pengajuan',
+    'Nama Driver',
+    'No WA Driver',
+    'Bank / E-Wallet',
+    'No Rekening',
+    'Nama Pemilik Rekening',
+    'Nominal Tarik',
+    'Status Transfer'
+  ];
+  createOrFormatSheet(ss, DB_CONFIG.WITHDRAW_SHEET_NAME, withdrawHeaders, [130, 150, 160, 140, 140, 160, 180, 140, 140]);
+
   // Tambahkan 1 data contoh jika sheet Data_Pelanggan masih kosong
   if (customerSheet.getLastRow() === 1) {
     insertSampleCustomer();
   }
 
-  Logger.log('Setup Database Selesai! Sheet "' + DB_CONFIG.CUSTOMER_SHEET_NAME + '" dan "' + DB_CONFIG.LOG_SHEET_NAME + '" siap digunakan.');
+  Logger.log('Setup Database Selesai! Sheet Pelanggan, Log, Pesanan, Driver, dan Penarikan Saldo siap digunakan.');
 }
 
 /**
@@ -83,8 +130,11 @@ function ensureDatabaseReady() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var customerSheet = ss.getSheetByName(DB_CONFIG.CUSTOMER_SHEET_NAME);
   var logSheet = ss.getSheetByName(DB_CONFIG.LOG_SHEET_NAME);
+  var orderSheet = ss.getSheetByName(DB_CONFIG.ORDER_SHEET_NAME);
+  var driverSheet = ss.getSheetByName(DB_CONFIG.DRIVER_SHEET_NAME);
+  var withdrawSheet = ss.getSheetByName(DB_CONFIG.WITHDRAW_SHEET_NAME);
 
-  if (!customerSheet || !logSheet) {
+  if (!customerSheet || !logSheet || !orderSheet || !driverSheet || !withdrawSheet) {
     setupDatabase();
   }
 }
