@@ -1,338 +1,367 @@
 /**
  * ============================================================================
- * FILE 1: kode.gs
- * Deskripsi: Handler utama Web App (doPost & doGet) untuk menerima dan
- *            menyimpan data pelanggan (Nama Pengguna, Alamat, No WA, Email)
- *            dari aplikasi web ke Google Spreadsheet.
+ * FILE 1: Code.gs (atau Kode.gs di Google Apps Script)
+ * Deskripsi: Handler utama Web App (doGet & doPost) untuk menerima dan
+ *            menyimpan data pelanggan, pesanan berbasis GPS + Google Maps,
+ *            chat real-time, mitra driver, dan penarikan saldo ke Spreadsheet.
  * ============================================================================
  */
 
 /**
- * Fungsi doGet dijalankan saat URL Web App dibuka langsung melalui browser.
- * Berguna untuk memastikan koneksi Web App sudah aktif atau mengambil data.
+ * Menangani permintaan HTTP GET dari aplikasi web (tes koneksi, ambil order,
+ * daftar pelanggan, mitra driver, dan riwayat penarikan saldo).
  */
 function doGet(e) {
   try {
-    // Pastikan struktur sheet sudah siap
-    if (typeof ensureDatabaseReady === 'function') {
-      ensureDatabaseReady();
-    }
+    ensureDatabaseReady();
 
-    var action = (e && e.parameter && e.parameter.action) ? e.parameter.action : 'status';
+    var params = (e && e.parameter) ? e.parameter : {};
+    var action = (params.action || 'ping').toString().trim();
 
-    // Daftar pelanggan
-    if (action === 'list') {
-      var customers = getAllCustomers();
+    if (action === 'ping') {
       return createJsonResponse({
         status: 'success',
-        total: customers.length,
-        data: customers
+        message: 'Koneksi Web App Google Spreadsheet aktif.',
+        timestamp: new Date().toISOString()
       });
     }
 
-    // Daftar seluruh pesanan (digunakan oleh driver.html)
-    if (action === 'list_orders') {
-      var orders = getAllOrders();
+    if (action === 'get_orders') {
       return createJsonResponse({
         status: 'success',
-        total: orders.length,
-        orders: orders
+        orders: getAllOrders()
       });
     }
 
-    // Ambil detail 1 pesanan berdasarkan orderId (digunakan oleh index.html & driver.html)
     if (action === 'get_order') {
-      var orderId = (e && e.parameter && e.parameter.orderId) ? e.parameter.orderId : '';
+      var orderId = (params.orderId || '').toString().trim();
       var order = getOrderById(orderId);
+      if (!order) {
+        return createJsonResponse({
+          status: 'error',
+          message: 'Pesanan dengan ID ' + orderId + ' tidak ditemukan.'
+        });
+      }
       return createJsonResponse({
-        status: order ? 'success' : 'not_found',
+        status: 'success',
         order: order
       });
     }
 
-    // Daftar mitra driver
-    if (action === 'list_drivers') {
-      var drivers = getAllDrivers();
+    if (action === 'get_customers') {
       return createJsonResponse({
         status: 'success',
-        drivers: drivers
+        customers: getAllCustomers()
       });
     }
 
-    // Daftar riwayat penarikan saldo driver (opsional filter driverPhone)
-    if (action === 'list_withdrawals') {
-      var drvPhone = (e && e.parameter && e.parameter.driverPhone) ? e.parameter.driverPhone : '';
-      var withdrawals = getAllWithdrawals(drvPhone);
+    if (action === 'get_drivers') {
       return createJsonResponse({
         status: 'success',
-        total: withdrawals.length,
-        withdrawals: withdrawals
+        drivers: getAllDrivers()
       });
     }
 
-    // Respons default untuk pengecekan status URL Web App
-    return createJsonResponse({
-      status: 'active',
-      message: 'API Database Pelanggan & Driver aktif dan siap digunakan.',
-      timestamp: new Date().toISOString()
-    });
+    if (action === 'get_withdrawals') {
+      var driverPhone = (params.driverPhone || '').toString().trim();
+      return createJsonResponse({
+        status: 'success',
+        withdrawals: getAllWithdrawals(driverPhone)
+      });
+    }
 
-  } catch (error) {
     return createJsonResponse({
       status: 'error',
-      message: error.toString()
+      message: 'Action GET tidak dikenali: ' + action
+    });
+  } catch (err) {
+    return createJsonResponse({
+      status: 'error',
+      message: 'Terjadi kesalahan pada doGet: ' + err.toString()
     });
   }
 }
 
 /**
- * Fungsi doPost dijalankan otomatis saat aplikasi pelanggan atau driver mengirim data.
+ * Menangani permintaan HTTP POST dari aplikasi web untuk menyimpan data
+ * pelanggan, pesanan GPS, status order, chat, driver, dan penarikan saldo.
  */
 function doPost(e) {
   var lock = LockService.getScriptLock();
+  var lockAcquired = false;
+
   try {
     lock.waitLock(10000);
+    lockAcquired = true;
 
-    if (typeof ensureDatabaseReady === 'function') {
-      ensureDatabaseReady();
+    ensureDatabaseReady();
+
+    var payload = {};
+    if (e && e.postData && e.postData.contents) {
+      payload = JSON.parse(e.postData.contents);
+    } else if (e && e.parameter) {
+      payload = e.parameter;
     }
 
-    if (!e || !e.postData || !e.postData.contents) {
-      throw new Error('Tidak ada data JSON yang dikirimkan pada body request.');
-    }
-
-    var payload = JSON.parse(e.postData.contents);
-    var action = (payload.action || 'upsert_customer').toString().trim();
-    var timestamp = new Date();
     var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var timestamp = new Date();
+    var action = (payload.action || 'save_customer').toString().trim();
 
-    // --- ROUTE A: BUAT PESANAN BARU DARI PELANGGAN ---
+    var customerSheet = ss.getSheetByName(DB_CONFIG.CUSTOMER_SHEET_NAME);
+    var logSheet = ss.getSheetByName(DB_CONFIG.LOG_SHEET_NAME);
+    var orderSheet = ss.getSheetByName(DB_CONFIG.ORDER_SHEET_NAME);
+    var driverSheet = ss.getSheetByName(DB_CONFIG.DRIVER_SHEET_NAME);
+    var withdrawSheet = ss.getSheetByName(DB_CONFIG.WITHDRAW_SHEET_NAME);
+
+    // --- ROUTE A: BUAT PESANAN BARU (DENGAN KOORDINAT GPS & LINK GOOGLE MAPS) ---
     if (action === 'create_order') {
-      var orderResult = createOrderRecord(ss.getSheetByName(DB_CONFIG.ORDER_SHEET_NAME), payload, timestamp);
+      var created = createOrderRecord(orderSheet, payload, timestamp);
+      appendActivityLog(
+        logSheet,
+        timestamp,
+        'CREATE_ORDER',
+        payload.customerName || 'Pelanggan',
+        'Order ' + created.orderId + ' (' + (payload.service || 'Ride') + ') - ' + (payload.route || '-'),
+        'SUKSES'
+      );
       return createJsonResponse({
         status: 'success',
-        orderId: orderResult.orderId,
-        message: 'Pesanan berhasil diteruskan ke radar driver.'
+        message: 'Pesanan berhasil disimpan ke database.',
+        orderId: created.orderId,
+        googleMapsUrl: created.googleMapsUrl
       });
     }
 
-    // --- ROUTE B: DRIVER MENERIMA ORDER ---
+    // --- ROUTE B: DRIVER MENERIMA PESANAN ---
     if (action === 'accept_order') {
-      var acceptResult = acceptOrderRecord(ss.getSheetByName(DB_CONFIG.ORDER_SHEET_NAME), payload);
-      return createJsonResponse(acceptResult);
-    }
-
-    // --- ROUTE C: PEMBARUAN STATUS ORDER (JALAN / SELESAI / BATAL) ---
-    if (action === 'update_order_status') {
-      var statusResult = updateOrderStatusRecord(
-        ss.getSheetByName(DB_CONFIG.ORDER_SHEET_NAME),
-        ss.getSheetByName(DB_CONFIG.DRIVER_SHEET_NAME),
-        payload
+      var acceptRes = acceptOrderRecord(orderSheet, payload);
+      appendActivityLog(
+        logSheet,
+        timestamp,
+        'ACCEPT_ORDER',
+        payload.driverName || 'Mitra Driver',
+        'Terima Order ' + (payload.orderId || '-'),
+        acceptRes.status === 'success' ? 'SUKSES' : 'GAGAL'
       );
-      return createJsonResponse(statusResult);
+      return createJsonResponse(acceptRes);
     }
 
-    // --- ROUTE D: KIRIM PESAN CHAT PELANGGAN <-> DRIVER ---
+    // --- ROUTE C: PERBARUI STATUS PESANAN ---
+    if (action === 'update_order_status') {
+      var statusRes = updateOrderStatusRecord(orderSheet, driverSheet, payload);
+      appendActivityLog(
+        logSheet,
+        timestamp,
+        'UPDATE_ORDER_STATUS',
+        payload.driverName || payload.customerName || 'Sistem',
+        'Order ' + (payload.orderId || '-') + ' -> ' + (payload.status || '-'),
+        statusRes.status === 'success' ? 'SUKSES' : 'GAGAL'
+      );
+      return createJsonResponse(statusRes);
+    }
+
+    // --- ROUTE D: KIRIM PESAN CHAT ORDER ---
     if (action === 'send_chat') {
-      var chatResult = appendOrderChat(ss.getSheetByName(DB_CONFIG.ORDER_SHEET_NAME), payload);
-      return createJsonResponse(chatResult);
+      var chatRes = appendOrderChat(orderSheet, payload);
+      return createJsonResponse(chatRes);
     }
 
-    // --- ROUTE E: SIMPAN / UPDATE STATUS MITRA DRIVER ---
-    if (action === 'upsert_driver') {
-      var driverResult = upsertDriverRecord(ss.getSheetByName(DB_CONFIG.DRIVER_SHEET_NAME), payload, timestamp);
+    // --- ROUTE E: SIMPAN / UPDATE DATA MITRA DRIVER ---
+    if (action === 'save_driver' || action === 'upsert_driver' || action === 'update_driver') {
+      var drvRes = upsertDriverRecord(driverSheet, payload, timestamp);
+      appendActivityLog(
+        logSheet,
+        timestamp,
+        'SAVE_DRIVER',
+        payload.name || payload.driverName || 'Mitra Driver',
+        'Operasi ' + drvRes.operation + ' (ID: ' + drvRes.driverId + ')',
+        'SUKSES'
+      );
       return createJsonResponse({
         status: 'success',
-        driver: driverResult
+        message: 'Data mitra driver berhasil disimpan.',
+        driverId: drvRes.driverId,
+        operation: drvRes.operation,
+        totalIncome: drvRes.totalIncome
       });
     }
 
     // --- ROUTE F: PENGAJUAN PENARIKAN SALDO KE REKENING DRIVER ---
     if (action === 'withdraw_driver') {
-      var wdResult = createWithdrawalRecord(
-        ss.getSheetByName(DB_CONFIG.WITHDRAW_SHEET_NAME),
-        ss.getSheetByName(DB_CONFIG.DRIVER_SHEET_NAME),
-        payload,
-        timestamp
+      var wdResult = createWithdrawalRecord(withdrawSheet, driverSheet, payload, timestamp);
+      appendActivityLog(
+        logSheet,
+        timestamp,
+        'WITHDRAW_DRIVER',
+        payload.driverName || 'Mitra Driver',
+        'Tarik saldo Rp ' + Number(payload.amount || 0) + ' ke ' + (payload.bank || '-'),
+        wdResult.status === 'success' ? 'SUKSES' : 'GAGAL'
       );
       return createJsonResponse(wdResult);
     }
 
     // --- ROUTE DEFAULT: SIMPAN / UPDATE DATA PELANGGAN ---
-    var nama   = (payload.nama || '').toString().trim();
-    var alamat = (payload.alamat || '').toString().trim();
-    var noWa   = (payload.no_wa || '').toString().trim();
-    var email  = (payload.email || '').toString().trim();
-    var aksi   = (payload.aksi || 'Update Profil').toString().trim();
-
-    if (!nama && !noWa && !email) {
-      throw new Error('Data pelanggan tidak lengkap (Nama, No WA, atau Email wajib diisi).');
-    }
-
-    var customerSheet = ss.getSheetByName(DB_CONFIG.CUSTOMER_SHEET_NAME);
-    var upsertResult = upsertCustomerRecord(customerSheet, {
-      timestamp: timestamp,
-      nama: nama,
-      alamat: alamat,
-      no_wa: noWa,
-      email: email,
-      aksi: aksi
-    });
-
-    var logSheet = ss.getSheetByName(DB_CONFIG.LOG_SHEET_NAME);
-    if (logSheet) {
-      logSheet.appendRow([
-        timestamp,
-        upsertResult.customerId,
-        nama,
-        alamat,
-        "'" + noWa,
-        email,
-        aksi
-      ]);
-    }
-
+    var custRes = upsertCustomerRecord(customerSheet, payload, timestamp);
+    appendActivityLog(
+      logSheet,
+      timestamp,
+      'SAVE_CUSTOMER',
+      payload.name || 'Pelanggan',
+      (payload.lastAction || 'Update Profil') + ' (ID: ' + custRes.customerId + ')',
+      'SUKSES'
+    );
     return createJsonResponse({
       status: 'success',
-      operation: upsertResult.operation,
-      customerId: upsertResult.customerId,
-      message: 'Data pelanggan berhasil disimpan ke Google Spreadsheet.',
-      timestamp: timestamp.toISOString()
+      message: 'Data pelanggan berhasil disimpan.',
+      customerId: custRes.customerId,
+      operation: custRes.operation
     });
-
-  } catch (error) {
+  } catch (err) {
     return createJsonResponse({
       status: 'error',
-      message: error.toString()
+      message: 'Terjadi kesalahan pada doPost: ' + err.toString()
     });
   } finally {
-    lock.releaseLock();
+    if (lockAcquired) {
+      lock.releaseLock();
+    }
   }
 }
 
 /**
- * Menyimpan pelanggan baru atau memperbarui baris pelanggan lama
- * jika Email atau Nomor WA sudah terdaftar di sheet "Data_Pelanggan".
+ * ============================================================================
+ * FUNGSI MANAJEMEN PELANGGAN & PENARIKAN SALDO DRIVER
+ * ============================================================================
  */
-function upsertCustomerRecord(sheet, record) {
-  var lastRow = sheet.getLastRow();
-  var foundRowIndex = -1;
-  var existingCustomerId = '';
-  var registeredTime = record.timestamp;
 
-  // Cari apakah pelanggan sudah terdaftar berdasarkan No WA atau Email
-  if (lastRow > 1) {
-    var values = sheet.getRange(2, 1, lastRow - 1, 8).getValues();
-    var cleanTargetWa = normalizePhone(record.no_wa);
-    var cleanTargetEmail = record.email.toLowerCase();
+/**
+ * Menyimpan pelanggan baru atau memperbarui data pelanggan yang sudah ada
+ * berdasarkan Nomor WA atau Email.
+ */
+function upsertCustomerRecord(customerSheet, payload, timestamp) {
+  var name = (payload.name || 'Pelanggan').toString().trim();
+  var address = (payload.address || '-').toString().trim();
+  var phone = (payload.phone || '-').toString().trim();
+  var email = (payload.email || '-').toString().trim();
+  var lastAction = (payload.lastAction || 'Update Profil').toString().trim();
 
+  var cleanTargetPhone = normalizePhone(phone);
+  var lowerTargetEmail = email.toLowerCase();
+  var foundRow = -1;
+  var existingId = '';
+  var createdAt = timestamp;
+
+  if (customerSheet.getLastRow() > 1) {
+    var values = customerSheet.getRange(2, 1, customerSheet.getLastRow() - 1, 8).getValues();
     for (var i = 0; i < values.length; i++) {
-      var rowId = values[i][0];
-      var rowRegTime = values[i][1];
-      var rowWa = normalizePhone(values[i][5]);
-      var rowEmail = (values[i][6] || '').toString().toLowerCase().trim();
+      var rowPhone = normalizePhone(values[i][5]);
+      var rowEmail = (values[i][6] || '').toString().trim().toLowerCase();
+      var matchPhone = cleanTargetPhone && rowPhone === cleanTargetPhone;
+      var matchEmail = lowerTargetEmail && lowerTargetEmail !== '-' && rowEmail === lowerTargetEmail;
 
-      var matchWa = cleanTargetWa && rowWa && (cleanTargetWa === rowWa);
-      var matchEmail = cleanTargetEmail && rowEmail && (cleanTargetEmail === rowEmail);
-
-      if (matchWa || matchEmail) {
-        foundRowIndex = i + 2; // +2 karena baris 1 adalah header dan array 0-indexed
-        existingCustomerId = rowId;
-        registeredTime = rowRegTime || record.timestamp;
+      if (matchPhone || matchEmail) {
+        foundRow = i + 2;
+        existingId = values[i][0];
+        createdAt = values[i][1] || timestamp;
         break;
       }
     }
   }
 
-  // Jika pelanggan sudah ada, perbarui barisnya
-  if (foundRowIndex !== -1) {
-    sheet.getRange(foundRowIndex, 1, 1, 8).setValues([[
-      existingCustomerId,
-      registeredTime,
-      record.timestamp,
-      record.nama,
-      record.alamat,
-      "'" + record.no_wa,
-      record.email,
-      record.aksi
+  if (foundRow !== -1) {
+    customerSheet.getRange(foundRow, 1, 1, 8).setValues([[
+      existingId,
+      createdAt,
+      timestamp,
+      name,
+      address,
+      "'" + phone,
+      email,
+      lastAction
     ]]);
-
-    return {
-      operation: 'updated',
-      customerId: existingCustomerId,
-      row: foundRowIndex
-    };
+    return { customerId: existingId, operation: 'updated' };
   }
 
-  // Jika pelanggan baru, tambahkan baris baru dengan ID unik
-  var newCustomerId = 'USR-' + Utilities.formatDate(record.timestamp, Session.getScriptTimeZone(), 'yyMMdd') + '-' + Math.floor(100 + Math.random() * 900);
-  sheet.appendRow([
+  var newCustomerId = 'USR-' + Utilities.formatDate(timestamp, Session.getScriptTimeZone(), 'yyMMdd') + '-' + Math.floor(100 + Math.random() * 900);
+  customerSheet.appendRow([
     newCustomerId,
-    record.timestamp,
-    record.timestamp,
-    record.nama,
-    record.alamat,
-    "'" + record.no_wa,
-    record.email,
-    record.aksi
+    timestamp,
+    timestamp,
+    name,
+    address,
+    "'" + phone,
+    email,
+    lastAction
   ]);
 
-  return {
-    operation: 'inserted',
-    customerId: newCustomerId,
-    row: sheet.getLastRow()
-  };
+  return { customerId: newCustomerId, operation: 'inserted' };
 }
 
 /**
- * Mengambil seluruh daftar pelanggan dari sheet "Data_Pelanggan"
+ * Mengambil daftar seluruh pelanggan dari sheet Data_Pelanggan.
  */
 function getAllCustomers() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName(DB_CONFIG.CUSTOMER_SHEET_NAME);
-  if (!sheet || sheet.getLastRow() <= 1) {
-    return [];
-  }
+  if (!sheet || sheet.getLastRow() <= 1) return [];
 
   var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 8).getValues();
   var list = [];
-
-  for (var i = 0; i < data.length; i++) {
+  for (var i = data.length - 1; i >= 0; i--) {
     list.push({
-      id_pelanggan: data[i][0],
-      waktu_terdaftar: data[i][1],
-      terakhir_diperbarui: data[i][2],
-      nama: data[i][3],
-      alamat: data[i][4],
-      no_wa: data[i][5],
+      id: data[i][0],
+      createdAt: data[i][1],
+      updatedAt: data[i][2],
+      name: data[i][3],
+      address: data[i][4],
+      phone: data[i][5],
       email: data[i][6],
-      aksi_terakhir: data[i][7]
+      lastAction: data[i][7]
     });
   }
   return list;
 }
 
 /**
- * ============================================================================
- * FUNGSI PENARIKAN PENDAPATAN KE REKENING DRIVER
- * ============================================================================
+ * Mencatat pengajuan penarikan saldo driver ke sheet Data_Penarikan
+ * dan memotong saldo pada sheet Data_Driver jika mencukupi.
  */
-
 function createWithdrawalRecord(withdrawSheet, driverSheet, payload, timestamp) {
+  var driverName = (payload.driverName || 'Mitra Driver').toString().trim();
+  var driverPhone = (payload.driverPhone || '-').toString().trim();
+  var bank = (payload.bank || 'Transfer Bank').toString().trim();
+  var accountNumber = (payload.accountNumber || '-').toString().trim();
+  var accountHolder = (payload.accountHolder || driverName).toString().trim();
   var amount = Number(payload.amount || 0);
+
   if (amount <= 0) {
     return { status: 'error', message: 'Nominal penarikan harus lebih dari 0.' };
   }
 
-  var withdrawId = payload.withdrawId || ('WD-' + Utilities.formatDate(timestamp, Session.getScriptTimeZone(), 'yyMMdd') + '-' + Math.floor(100 + Math.random() * 900));
-  var driverName = (payload.driverName || 'Mitra Driver').toString().trim();
-  var driverPhone = (payload.driverPhone || '-').toString().trim();
-  var bank = (payload.bank || 'BCA').toString().trim();
-  var accountNumber = (payload.accountNumber || '-').toString().trim();
-  var accountHolder = (payload.accountHolder || driverName).toString().trim();
+  // Cek dan potong saldo di Data_Driver bila data driver ditemukan
+  if (driverSheet && driverSheet.getLastRow() > 1) {
+    var cleanPhone = normalizePhone(driverPhone);
+    var drvData = driverSheet.getRange(2, 1, driverSheet.getLastRow() - 1, 8).getValues();
+    for (var i = 0; i < drvData.length; i++) {
+      var matchPhone = cleanPhone && normalizePhone(drvData[i][3]) === cleanPhone;
+      var matchName = (drvData[i][2] || '').toString().trim().toLowerCase() === driverName.toLowerCase();
+      if (matchPhone || matchName) {
+        var currentBalance = Number(drvData[i][7] || 0);
+        if (currentBalance < amount) {
+          return {
+            status: 'error',
+            message: 'Saldo driver tidak mencukupi. Saldo tersedia: Rp ' + currentBalance
+          };
+        }
+        driverSheet.getRange(i + 2, 8).setValue(currentBalance - amount);
+        break;
+      }
+    }
+  }
 
+  var wdId = 'WD-' + Utilities.formatDate(timestamp, Session.getScriptTimeZone(), 'yyMMdd') + '-' + Math.floor(100 + Math.random() * 900);
   withdrawSheet.appendRow([
-    withdrawId,
+    wdId,
     timestamp,
     driverName,
     "'" + driverPhone,
@@ -343,40 +372,29 @@ function createWithdrawalRecord(withdrawSheet, driverSheet, payload, timestamp) 
     'DIPROSES'
   ]);
 
-  // Kurangi kolom Total Pendapatan pada sheet Data_Driver jika ditemukan
-  if (driverSheet && driverSheet.getLastRow() > 1 && driverPhone) {
-    var cleanPhone = normalizePhone(driverPhone);
-    var values = driverSheet.getRange(2, 1, driverSheet.getLastRow() - 1, 8).getValues();
-    for (var i = 0; i < values.length; i++) {
-      if (normalizePhone(values[i][3]) === cleanPhone) {
-        var currentBal = Number(values[i][7] || 0);
-        var nextBal = Math.max(0, currentBal - amount);
-        driverSheet.getRange(i + 2, 8).setValue(nextBal);
-        break;
-      }
-    }
-  }
-
   return {
     status: 'success',
-    withdrawId: withdrawId,
-    message: 'Pengajuan penarikan saldo berhasil dicatat ke Spreadsheet.'
+    message: 'Pengajuan penarikan saldo berhasil dicatat.',
+    withdrawalId: wdId
   };
 }
 
+/**
+ * Mengambil riwayat penarikan saldo dari sheet Data_Penarikan.
+ */
 function getAllWithdrawals(driverPhoneFilter) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName(DB_CONFIG.WITHDRAW_SHEET_NAME);
   if (!sheet || sheet.getLastRow() <= 1) return [];
 
   var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 9).getValues();
-  var targetPhone = normalizePhone(driverPhoneFilter || '');
+  var cleanFilter = normalizePhone(driverPhoneFilter);
   var list = [];
 
   for (var i = data.length - 1; i >= 0; i--) {
-    var rowPhone = normalizePhone(data[i][3]);
-    if (targetPhone && rowPhone !== targetPhone) continue;
-
+    if (cleanFilter && normalizePhone(data[i][3]) !== cleanFilter) {
+      continue;
+    }
     list.push({
       id: data[i][0],
       time: data[i][1],
@@ -390,4 +408,372 @@ function getAllWithdrawals(driverPhoneFilter) {
     });
   }
   return list;
+}
+
+/**
+ * ============================================================================
+ * FUNGSI MANAJEMEN PESANAN REAL-TIME (DENGAN KOORDINAT GPS & GOOGLE MAPS)
+ * ============================================================================
+ */
+
+/**
+ * Membentuk URL navigasi Google Maps langsung dari koordinat jemput & tujuan.
+ */
+function buildGoogleMapsUrl(pickupCoords, destCoords) {
+  var p = (pickupCoords || '').toString().trim();
+  var d = (destCoords || '').toString().trim();
+  if (p && d) {
+    return 'https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent(p) + '&destination=' + encodeURIComponent(d) + '&travelmode=driving';
+  }
+  if (d) {
+    return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(d);
+  }
+  if (p) {
+    return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p);
+  }
+  return '';
+}
+
+/**
+ * Menyimpan pesanan baru dari pelanggan ke sheet Data_Pesanan lengkap dengan
+ * koordinat GPS, jarak tempuh (km), dan link Google Maps.
+ */
+function createOrderRecord(orderSheet, payload, timestamp) {
+  var orderId = (payload.orderId || ('ORD-' + Math.floor(1000 + Math.random() * 9000))).toString().trim();
+  var service = (payload.service || 'NusaRide').toString().trim();
+  var customerName = (payload.customerName || 'Pelanggan').toString().trim();
+  var customerPhone = (payload.customerPhone || '-').toString().trim();
+  var route = (payload.route || '-').toString().trim();
+  var total = Number(payload.total || 0);
+  var paymentMethod = (payload.paymentMethod || 'Tunai').toString().trim();
+
+  var pickupCoords = (payload.pickupCoords || '').toString().trim();
+  var destCoords = (payload.destCoords || '').toString().trim();
+  var distanceKm = (payload.distanceKm !== undefined && payload.distanceKm !== null && payload.distanceKm !== '') ? Number(payload.distanceKm) : '';
+  var googleMapsUrl = (payload.googleMapsUrl || buildGoogleMapsUrl(pickupCoords, destCoords)).toString().trim();
+
+  var initialChats = JSON.stringify([
+    {
+      sender: 'driver',
+      text: 'Pesanan ' + service + ' telah diterima sistem. Menunggu mitra driver terdekat...',
+      time: Utilities.formatDate(timestamp, Session.getScriptTimeZone(), 'HH:mm')
+    }
+  ]);
+
+  orderSheet.appendRow([
+    orderId,
+    timestamp,
+    service,
+    customerName,
+    "'" + customerPhone,
+    route,
+    total,
+    paymentMethod,
+    'MENCARI_DRIVER',
+    '-',
+    '-',
+    initialChats,
+    pickupCoords,
+    destCoords,
+    distanceKm,
+    googleMapsUrl
+  ]);
+
+  return {
+    orderId: orderId,
+    googleMapsUrl: googleMapsUrl
+  };
+}
+
+/**
+ * Driver menerima order yang masih berstatus MENCARI_DRIVER.
+ */
+function acceptOrderRecord(orderSheet, payload) {
+  var orderId = (payload.orderId || '').toString().trim();
+  var driverName = (payload.driverName || 'Mitra Driver').toString().trim();
+  var plate = (payload.plate || '-').toString().trim();
+
+  if (!orderId || orderSheet.getLastRow() <= 1) {
+    return { status: 'error', message: 'ID Order tidak ditemukan.' };
+  }
+
+  var data = orderSheet.getRange(2, 1, orderSheet.getLastRow() - 1, 16).getValues();
+  for (var i = 0; i < data.length; i++) {
+    if (data[i][0].toString().trim() === orderId) {
+      var currentStatus = (data[i][8] || '').toString().trim();
+      if (currentStatus !== 'MENCARI_DRIVER') {
+        return { status: 'error', message: 'Order sudah diambil oleh driver lain atau dibatalkan.' };
+      }
+
+      var rowNum = i + 2;
+      orderSheet.getRange(rowNum, 9, 1, 3).setValues([['MENUJU_JEMPUT', driverName, plate]]);
+
+      var chats = safeParseChats(data[i][11]);
+      chats.push({
+        sender: 'driver',
+        text: 'Halo! Saya ' + driverName + ' (' + plate + ') sedang menuju titik penjemputan Anda.',
+        time: Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'HH:mm')
+      });
+      orderSheet.getRange(rowNum, 12).setValue(JSON.stringify(chats));
+
+      return { status: 'success', message: 'Order berhasil diterima.' };
+    }
+  }
+
+  return { status: 'error', message: 'Order tidak ditemukan di database.' };
+}
+
+/**
+ * Memperbarui status pesanan (MENUJU_JEMPUT, DALAM_PERJALANAN, SELESAI, DIBATALKAN).
+ */
+function updateOrderStatusRecord(orderSheet, driverSheet, payload) {
+  var orderId = (payload.orderId || '').toString().trim();
+  var nextStatus = (payload.status || '').toString().trim();
+  var driverPhone = (payload.driverPhone || '').toString().trim();
+
+  if (!orderId || !nextStatus || orderSheet.getLastRow() <= 1) {
+    return { status: 'error', message: 'Parameter orderId atau status tidak lengkap.' };
+  }
+
+  var data = orderSheet.getRange(2, 1, orderSheet.getLastRow() - 1, 16).getValues();
+  for (var i = 0; i < data.length; i++) {
+    if (data[i][0].toString().trim() === orderId) {
+      var rowNum = i + 2;
+      var prevStatus = (data[i][8] || '').toString().trim();
+      orderSheet.getRange(rowNum, 9).setValue(nextStatus);
+
+      // Tambahkan pendapatan driver otomatis saat order berubah menjadi SELESAI
+      if (nextStatus === 'SELESAI' && prevStatus !== 'SELESAI' && driverSheet && driverSheet.getLastRow() > 1) {
+        var orderTotal = Number(data[i][6] || 0);
+        var orderDriverName = (data[i][9] || '').toString().trim().toLowerCase();
+        var cleanDrvPhone = normalizePhone(driverPhone);
+        var drvRows = driverSheet.getRange(2, 1, driverSheet.getLastRow() - 1, 8).getValues();
+
+        for (var j = 0; j < drvRows.length; j++) {
+          var matchPhone = cleanDrvPhone && normalizePhone(drvRows[j][3]) === cleanDrvPhone;
+          var matchName = orderDriverName && (drvRows[j][2] || '').toString().trim().toLowerCase() === orderDriverName;
+          if (matchPhone || matchName) {
+            var currentIncome = Number(drvRows[j][7] || 0);
+            driverSheet.getRange(j + 2, 8).setValue(currentIncome + orderTotal);
+            break;
+          }
+        }
+      }
+
+      return { status: 'success', orderId: orderId, newStatus: nextStatus };
+    }
+  }
+
+  return { status: 'error', message: 'Order tidak ditemukan.' };
+}
+
+/**
+ * Menambahkan pesan chat baru pada sebuah pesanan.
+ */
+function appendOrderChat(orderSheet, payload) {
+  var orderId = (payload.orderId || '').toString().trim();
+  var sender = (payload.sender || 'user').toString().trim();
+  var text = (payload.text || '').toString().trim();
+
+  if (!orderId || !text || orderSheet.getLastRow() <= 1) {
+    return { status: 'error', message: 'Pesan chat atau orderId kosong.' };
+  }
+
+  var data = orderSheet.getRange(2, 1, orderSheet.getLastRow() - 1, 16).getValues();
+  for (var i = 0; i < data.length; i++) {
+    if (data[i][0].toString().trim() === orderId) {
+      var rowNum = i + 2;
+      var chats = safeParseChats(data[i][11]);
+      chats.push({
+        sender: sender,
+        text: text,
+        time: Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'HH:mm')
+      });
+      orderSheet.getRange(rowNum, 12).setValue(JSON.stringify(chats));
+      return { status: 'success', chats: chats };
+    }
+  }
+
+  return { status: 'error', message: 'Order tidak ditemukan untuk chat.' };
+}
+
+/**
+ * Mengambil seluruh daftar pesanan dari sheet Data_Pesanan.
+ */
+function getAllOrders() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(DB_CONFIG.ORDER_SHEET_NAME);
+  if (!sheet || sheet.getLastRow() <= 1) return [];
+
+  var totalCols = Math.max(16, sheet.getLastColumn());
+  var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, totalCols).getValues();
+  var orders = [];
+
+  for (var i = data.length - 1; i >= 0; i--) {
+    orders.push(mapOrderRow(data[i]));
+  }
+  return orders;
+}
+
+/**
+ * Mengambil detail 1 pesanan berdasarkan orderId.
+ */
+function getOrderById(orderId) {
+  if (!orderId) return null;
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(DB_CONFIG.ORDER_SHEET_NAME);
+  if (!sheet || sheet.getLastRow() <= 1) return null;
+
+  var totalCols = Math.max(16, sheet.getLastColumn());
+  var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, totalCols).getValues();
+  var targetId = orderId.toString().trim();
+
+  for (var i = 0; i < data.length; i++) {
+    if (data[i][0].toString().trim() === targetId) {
+      return mapOrderRow(data[i]);
+    }
+  }
+  return null;
+}
+
+function mapOrderRow(row) {
+  var pickupCoords = (row[12] || '').toString().trim();
+  var destCoords = (row[13] || '').toString().trim();
+  var gmapsUrl = (row[15] || buildGoogleMapsUrl(pickupCoords, destCoords)).toString().trim();
+
+  return {
+    id: row[0],
+    time: row[1],
+    service: row[2],
+    customerName: row[3],
+    customerPhone: row[4],
+    route: row[5],
+    total: Number(row[6] || 0),
+    paymentMethod: row[7],
+    status: row[8],
+    driverName: row[9],
+    plate: row[10],
+    chats: safeParseChats(row[11]),
+    pickupCoords: pickupCoords,
+    destCoords: destCoords,
+    distanceKm: row[14] !== '' && row[14] !== undefined ? Number(row[14]) : null,
+    googleMapsUrl: gmapsUrl
+  };
+}
+
+/**
+ * ============================================================================
+ * FUNGSI MANAJEMEN MITRA DRIVER, LOG AKTIVITAS & UTILITAS
+ * ============================================================================
+ */
+
+function upsertDriverRecord(driverSheet, payload, timestamp) {
+  var name = (payload.name || payload.driverName || 'Mitra Driver').toString().trim();
+  var phone = (payload.phone || payload.driverPhone || '').toString().trim();
+  var vehicle = (payload.vehicle || 'Motor').toString().trim();
+  var plate = (payload.plate || '-').toString().trim();
+  var workStatus = (payload.status || 'ONLINE').toString().trim();
+
+  var cleanTargetPhone = normalizePhone(phone);
+  var foundRow = -1;
+  var existingId = '';
+  var existingIncome = 0;
+
+  if (driverSheet.getLastRow() > 1 && cleanTargetPhone) {
+    var values = driverSheet.getRange(2, 1, driverSheet.getLastRow() - 1, 8).getValues();
+    for (var i = 0; i < values.length; i++) {
+      if (normalizePhone(values[i][3]) === cleanTargetPhone) {
+        foundRow = i + 2;
+        existingId = values[i][0];
+        existingIncome = Number(values[i][7] || 0);
+        break;
+      }
+    }
+  }
+
+  if (foundRow !== -1) {
+    driverSheet.getRange(foundRow, 1, 1, 8).setValues([[
+      existingId,
+      timestamp,
+      name,
+      "'" + phone,
+      vehicle,
+      plate,
+      workStatus,
+      existingIncome
+    ]]);
+    return { driverId: existingId, operation: 'updated', totalIncome: existingIncome };
+  }
+
+  var newDriverId = 'DRV-' + Utilities.formatDate(timestamp, Session.getScriptTimeZone(), 'yyMMdd') + '-' + Math.floor(100 + Math.random() * 900);
+  driverSheet.appendRow([
+    newDriverId,
+    timestamp,
+    name,
+    "'" + phone,
+    vehicle,
+    plate,
+    workStatus,
+    0
+  ]);
+
+  return { driverId: newDriverId, operation: 'inserted', totalIncome: 0 };
+}
+
+function getAllDrivers() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(DB_CONFIG.DRIVER_SHEET_NAME);
+  if (!sheet || sheet.getLastRow() <= 1) return [];
+
+  var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 8).getValues();
+  var list = [];
+  for (var i = 0; i < data.length; i++) {
+    list.push({
+      id: data[i][0],
+      lastActive: data[i][1],
+      name: data[i][2],
+      phone: data[i][3],
+      vehicle: data[i][4],
+      plate: data[i][5],
+      status: data[i][6],
+      totalIncome: Number(data[i][7] || 0)
+    });
+  }
+  return list;
+}
+
+function appendActivityLog(logSheet, timestamp, actionType, actor, detail, status) {
+  if (!logSheet) return;
+  try {
+    logSheet.appendRow([
+      timestamp,
+      actionType || 'INFO',
+      actor || '-',
+      detail || '-',
+      status || 'SUKSES'
+    ]);
+  } catch (e) {
+    // Abaikan error pencatatan log agar transaksi utama tetap berjalan
+  }
+}
+
+function safeParseChats(raw) {
+  if (!raw) return [];
+  try {
+    var parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function normalizePhone(phone) {
+  if (!phone) return '';
+  return phone.toString().replace(/[^0-9]/g, '');
+}
+
+function createJsonResponse(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
 }
