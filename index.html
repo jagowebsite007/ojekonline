@@ -116,27 +116,27 @@
 
             <!-- Desktop Navigation -->
             <nav class="hidden md:flex items-center gap-1 bg-slate-100 p-1 rounded-2xl">
-                <button onclick="switchTab('home')" id="nav-desk-home" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white text-emerald-700 shadow-sm transition">
+                <button type="button" onclick="switchTab('home')" id="nav-desk-home" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white text-emerald-700 shadow-sm transition">
                     <i class="fa-solid fa-house mr-1"></i> Beranda
                 </button>
-                <button onclick="switchTab('promos')" id="nav-desk-promos" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 transition">
+                <button type="button" onclick="switchTab('promos')" id="nav-desk-promos" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 transition">
                     <i class="fa-solid fa-ticket mr-1"></i> Promo
                 </button>
-                <button onclick="switchTab('orders')" id="nav-desk-orders" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 transition">
+                <button type="button" onclick="switchTab('orders')" id="nav-desk-orders" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 transition">
                     <i class="fa-solid fa-receipt mr-1"></i> Pesanan
                 </button>
-                <button onclick="switchTab('profile')" id="nav-desk-profile" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 transition">
+                <button type="button" onclick="switchTab('profile')" id="nav-desk-profile" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 transition">
                     <i class="fa-solid fa-user mr-1"></i> Profil
                 </button>
             </nav>
 
             <!-- Right Quick Actions -->
             <div class="flex items-center gap-2 shrink-0">
-                <button onclick="openTopUpModal()" class="hidden sm:flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 px-3 py-1.5 rounded-xl text-xs font-bold transition">
+                <button type="button" onclick="openTopUpModal()" class="hidden sm:flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 px-3 py-1.5 rounded-xl text-xs font-bold transition">
                     <i class="fa-solid fa-wallet text-emerald-600"></i>
                     <span id="header-wallet-balance">Rp 250.000</span>
                 </button>
-                <button onclick="openAdminModal()" title="Panel Admin & Database" class="bg-slate-900 hover:bg-slate-800 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
+                <button type="button" onclick="openAdminModal()" title="Panel Admin & Database" class="bg-slate-900 hover:bg-slate-800 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
                     <i class="fa-solid fa-sliders"></i>
                     <span class="hidden sm:inline">Admin</span>
                 </button>
@@ -184,10 +184,10 @@
                             <h2 class="text-2xl sm:text-3xl font-extrabold mt-2 tracking-tight" id="home-wallet-balance">Rp 250.000</h2>
                         </div>
                         <div class="flex items-center gap-2.5">
-                            <button onclick="openTopUpModal()" class="flex-1 sm:flex-none bg-white text-emerald-700 hover:bg-emerald-50 font-bold text-xs px-4 py-2.5 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
+                            <button type="button" onclick="openTopUpModal()" class="flex-1 sm:flex-none bg-white text-emerald-700 hover:bg-emerald-50 font-bold text-xs px-4 py-2.5 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
                                 <i class="fa-solid fa-circle-plus"></i> Top Up
                             </button>
-                            <button onclick="openWalletHistoryModal()" class="flex-1 sm:flex-none bg-white/15 hover:bg-white/25 text-white border border-white/25 font-bold text-xs px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition">
+                            <button type="button" onclick="openWalletHistoryModal()" class="flex-1 sm:flex-none bg-white/15 hover:bg-white/25 text-white border border-white/25 font-bold text-xs px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition">
                                 <i class="fa-solid fa-clock-rotate-left"></i> Riwayat
                             </button>
                         </div>
@@ -202,7 +202,7 @@
                     </div>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <!-- Ride -->
-                        <button onclick="openService('ride')" class="group text-left bg-emerald-50/70 hover:bg-emerald-100/80 border border-emerald-200 rounded-2xl p-4 transition shadow-sm hover:shadow">
+                        <button type="button" onclick="openService('ride')" class="group text-left bg-emerald-50/70 hover:bg-emerald-100/80 border border-emerald-200 rounded-2xl p-4 transition shadow-sm hover:shadow">
                             <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-xl mb-3 group-hover:scale-105 transition shadow">
                                 <i class="fa-solid fa-motorcycle"></i>
                             </div>
@@ -210,7 +210,7 @@
                             <p class="text-[11px] text-slate-500 mt-0.5">Ojek motor cepat & hemat</p>
                         </button>
                         <!-- Car -->
-                        <button onclick="openService('car')" class="group text-left bg-sky-50/70 hover:bg-sky-100/80 border border-sky-200 rounded-2xl p-4 transition shadow-sm hover:shadow">
+                        <button type="button" onclick="openService('car')" class="group text-left bg-sky-50/70 hover:bg-sky-100/80 border border-sky-200 rounded-2xl p-4 transition shadow-sm hover:shadow">
                             <div class="w-12 h-12 rounded-2xl bg-sky-600 text-white flex items-center justify-center text-xl mb-3 group-hover:scale-105 transition shadow">
                                 <i class="fa-solid fa-car-side"></i>
                             </div>
@@ -218,7 +218,7 @@
                             <p class="text-[11px] text-slate-500 mt-0.5">Mobil nyaman ber-AC</p>
                         </button>
                         <!-- Food -->
-                        <button onclick="openService('food')" class="group text-left bg-rose-50/70 hover:bg-rose-100/80 border border-rose-200 rounded-2xl p-4 transition shadow-sm hover:shadow">
+                        <button type="button" onclick="openService('food')" class="group text-left bg-rose-50/70 hover:bg-rose-100/80 border border-rose-200 rounded-2xl p-4 transition shadow-sm hover:shadow">
                             <div class="w-12 h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center text-xl mb-3 group-hover:scale-105 transition shadow">
                                 <i class="fa-solid fa-utensils"></i>
                             </div>
@@ -226,7 +226,7 @@
                             <p class="text-[11px] text-slate-500 mt-0.5">Pesan kuliner favorit</p>
                         </button>
                         <!-- Send -->
-                        <button onclick="openService('send')" class="group text-left bg-amber-50/70 hover:bg-amber-100/80 border border-amber-200 rounded-2xl p-4 transition shadow-sm hover:shadow">
+                        <button type="button" onclick="openService('send')" class="group text-left bg-amber-50/70 hover:bg-amber-100/80 border border-amber-200 rounded-2xl p-4 transition shadow-sm hover:shadow">
                             <div class="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-xl mb-3 group-hover:scale-105 transition shadow">
                                 <i class="fa-solid fa-box-open"></i>
                             </div>
@@ -247,7 +247,7 @@
                             <p class="text-xs text-slate-500">Gunakan kode promo <strong class="text-emerald-700 font-mono">HEMAT50</strong> saat pesan Ride atau Car.</p>
                         </div>
                     </div>
-                    <button onclick="switchTab('promos')" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-xl transition shrink-0">
+                    <button type="button" onclick="switchTab('promos')" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-xl transition shrink-0">
                         Lihat Semua Promo
                     </button>
                 </div>
@@ -256,7 +256,7 @@
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <h3 class="font-extrabold text-sm sm:text-base text-slate-800">Rekomendasi Kuliner Tobelo</h3>
-                        <button onclick="openService('food')" class="text-xs font-bold text-emerald-600 hover:underline">Lihat Semua</button>
+                        <button type="button" onclick="openService('food')" class="text-xs font-bold text-emerald-600 hover:underline">Lihat Semua</button>
                     </div>
                     <div id="home-food-preview" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <!-- Rendered via JS -->
@@ -268,7 +268,7 @@
             <section id="view-transport" class="hidden p-4 sm:p-6 space-y-5 fade-in">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
                     <div class="flex items-center gap-3">
-                        <button onclick="switchTab('home')" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 shrink-0">
+                        <button type="button" onclick="switchTab('home')" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 shrink-0">
                             <i class="fa-solid fa-arrow-left"></i>
                         </button>
                         <div>
@@ -276,12 +276,16 @@
                             <p class="text-xs text-slate-500">Deteksi GPS real-time, cari nama tujuan, atau klik langsung di peta</p>
                         </div>
                     </div>
-                    <!-- Live GPS Status Pill -->
-                    <div class="flex items-center gap-2 self-start sm:self-center">
+                    <!-- Live GPS & Driver Radar Status Pills -->
+                    <div class="flex items-center gap-2 self-start sm:self-center flex-wrap">
                         <span id="gps-live-badge" class="inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
                             <span id="gps-live-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
                             <span id="gps-live-text">Mendeteksi GPS...</span>
                         </span>
+                        <button type="button" onclick="refreshOnlineDrivers(true)" id="driver-online-badge" title="Klik untuk cek driver online terbaru" class="inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200 transition">
+                            <span id="driver-online-dot" class="w-2 h-2 rounded-full bg-slate-400"></span>
+                            <span id="driver-online-text">Mode Lokal</span>
+                        </button>
                         <span id="map-engine-badge" class="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                             <i class="fa-solid fa-map"></i> Peta Interaktif
                         </span>
@@ -548,7 +552,7 @@
                                 </div>
                             </div>
 
-                            <button type="button" onclick="submitTransportOrder()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3.5 rounded-2xl shadow-md hover:shadow-lg transition flex items-center justify-center gap-2 text-sm">
+                            <button type="button" id="btn-submit-transport" onclick="submitTransportOrder()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3.5 rounded-2xl shadow-md hover:shadow-lg transition flex items-center justify-center gap-2 text-sm">
                                 <i class="fa-solid fa-paper-plane"></i> Pesan Sekarang
                             </button>
                         </div>
@@ -560,7 +564,7 @@
             <section id="view-food" class="hidden p-4 sm:p-6 space-y-5 fade-in">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
                     <div class="flex items-center gap-3">
-                        <button onclick="switchTab('home')" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 shrink-0">
+                        <button type="button" onclick="switchTab('home')" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 shrink-0">
                             <i class="fa-solid fa-arrow-left"></i>
                         </button>
                         <div>
@@ -590,7 +594,7 @@
                         <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3 sticky top-20">
                             <div class="flex items-center justify-between">
                                 <h3 class="font-bold text-sm text-slate-800"><i class="fa-solid fa-bag-shopping text-rose-500 mr-1.5"></i> Keranjang Pesanan</h3>
-                                <button onclick="clearFoodCart()" class="text-[11px] font-bold text-rose-600 hover:underline">Kosongkan</button>
+                                <button type="button" onclick="clearFoodCart()" class="text-[11px] font-bold text-rose-600 hover:underline">Kosongkan</button>
                             </div>
                             <div id="food-cart-items" class="space-y-2 max-h-52 overflow-y-auto">
                                 <!-- Rendered via JS -->
@@ -613,7 +617,7 @@
                                 <option value="wallet">Bayar dengan Saldo Dompet</option>
                                 <option value="cash">Bayar Tunai ke Driver</option>
                             </select>
-                            <button onclick="submitFoodOrder()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-extrabold py-3 rounded-xl text-sm shadow transition">
+                            <button type="button" onclick="submitFoodOrder()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-extrabold py-3 rounded-xl text-sm shadow transition">
                                 Pesan Makanan Sekarang
                             </button>
                         </div>
@@ -624,7 +628,7 @@
             <!-- ==================== SERVICE VIEW: SEND ==================== -->
             <section id="view-send" class="hidden p-4 sm:p-6 space-y-5 fade-in">
                 <div class="flex items-center gap-3 border-b border-slate-200 pb-3">
-                    <button onclick="switchTab('home')" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 shrink-0">
+                    <button type="button" onclick="switchTab('home')" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 shrink-0">
                         <i class="fa-solid fa-arrow-left"></i>
                     </button>
                     <div>
@@ -668,7 +672,7 @@
                             <div>
                                 <label class="text-xs font-bold text-slate-600 uppercase block mb-1">Jenis & Berat Paket</label>
                                 <select id="send-package-type" onchange="calculateSendPrice()" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold">
-                                    <option value="0">Dokumen / Kecil (< 2 kg)</option>
+                                    <option value="0">Dokumen / Kecil (&lt; 2 kg)</option>
                                     <option value="5000">Paket Sedang (2 - 5 kg)</option>
                                     <option value="12000">Paket Besar (5 - 15 kg)</option>
                                 </select>
@@ -686,7 +690,7 @@
                             <div class="space-y-1.5 text-xs">
                                 <div class="flex justify-between text-slate-600">
                                     <span>Ongkos Kirim Instan</span>
-                                    <span class="font-semibold" id="send-base-fare">Rp 14.000</span>
+                                    <span class="font-semibold" id="send-base-fare">Rp 15.000</span>
                                 </div>
                                 <div class="flex justify-between text-slate-600">
                                     <span>Biaya Berat / Asuransi</span>
@@ -694,14 +698,14 @@
                                 </div>
                                 <div class="flex justify-between text-slate-900 font-extrabold text-base pt-2 border-t border-dashed border-slate-200">
                                     <span>Total Bayar</span>
-                                    <span id="send-final-price">Rp 16.000</span>
+                                    <span id="send-final-price">Rp 17.000</span>
                                 </div>
                             </div>
                             <select id="send-payment-method" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700">
                                 <option value="wallet">Bayar dengan Saldo Dompet</option>
                                 <option value="cash">Bayar Tunai ke Kurir</option>
                             </select>
-                            <button onclick="submitSendOrder()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold py-3 rounded-xl text-sm shadow transition">
+                            <button type="button" onclick="submitSendOrder()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold py-3 rounded-xl text-sm shadow transition">
                                 <i class="fa-solid fa-box mr-1.5"></i> Kirim Paket Sekarang
                             </button>
                         </div>
@@ -768,7 +772,7 @@
                                 <label class="text-xs font-bold text-slate-600 uppercase block mb-1">Alamat Utama</label>
                                 <input type="text" id="input-profile-address" class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
                             </div>
-                            <button onclick="saveUserProfile()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm shadow transition">
+                            <button type="button" onclick="saveUserProfile()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm shadow transition">
                                 <i class="fa-solid fa-floppy-disk mr-1.5"></i> Simpan Profil
                             </button>
                         </div>
@@ -785,7 +789,7 @@
                                 <p class="text-xs font-bold text-slate-600">Tambah Alamat Baru</p>
                                 <input type="text" id="new-addr-label" placeholder="Label (misal: Rumah Orang Tua / Kampus)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs">
                                 <input type="text" id="new-addr-detail" placeholder="Detail alamat lengkap" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs">
-                                <button onclick="addSavedAddress()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs transition">
+                                <button type="button" onclick="addSavedAddress()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs transition">
                                     <i class="fa-solid fa-plus mr-1"></i> Tambah Alamat
                                 </button>
                             </div>
@@ -798,19 +802,19 @@
 
     <!-- ==================== MOBILE BOTTOM NAV ==================== -->
     <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 px-2 py-1.5 flex items-center justify-around shadow-lg">
-        <button onclick="switchTab('home')" id="nav-mob-home" class="flex flex-col items-center gap-0.5 px-3 py-1 text-emerald-600 font-bold text-[11px]">
+        <button type="button" onclick="switchTab('home')" id="nav-mob-home" class="flex flex-col items-center gap-0.5 px-3 py-1 text-emerald-600 font-bold text-[11px]">
             <i class="fa-solid fa-house text-base"></i>
             <span>Beranda</span>
         </button>
-        <button onclick="switchTab('promos')" id="nav-mob-promos" class="flex flex-col items-center gap-0.5 px-3 py-1 text-slate-500 font-medium text-[11px]">
+        <button type="button" onclick="switchTab('promos')" id="nav-mob-promos" class="flex flex-col items-center gap-0.5 px-3 py-1 text-slate-500 font-medium text-[11px]">
             <i class="fa-solid fa-ticket text-base"></i>
             <span>Promo</span>
         </button>
-        <button onclick="switchTab('orders')" id="nav-mob-orders" class="flex flex-col items-center gap-0.5 px-3 py-1 text-slate-500 font-medium text-[11px]">
+        <button type="button" onclick="switchTab('orders')" id="nav-mob-orders" class="flex flex-col items-center gap-0.5 px-3 py-1 text-slate-500 font-medium text-[11px]">
             <i class="fa-solid fa-receipt text-base"></i>
             <span>Pesanan</span>
         </button>
-        <button onclick="switchTab('profile')" id="nav-mob-profile" class="flex flex-col items-center gap-0.5 px-3 py-1 text-slate-500 font-medium text-[11px]">
+        <button type="button" onclick="switchTab('profile')" id="nav-mob-profile" class="flex flex-col items-center gap-0.5 px-3 py-1 text-slate-500 font-medium text-[11px]">
             <i class="fa-solid fa-user text-base"></i>
             <span>Profil</span>
         </button>
@@ -833,7 +837,7 @@
                         <p class="text-xs text-slate-500 truncate" id="track-status-subtitle">Menghubungkan dengan mitra...</p>
                     </div>
                 </div>
-                <button onclick="closeTrackingModal()" class="w-9 h-9 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
+                <button type="button" onclick="closeTrackingModal()" class="w-9 h-9 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
@@ -850,12 +854,12 @@
                         <span class="text-[11px] font-bold" id="driver-floating-label">Mencari Driver...</span>
                     </div>
 
-                    <!-- Top-Right Controls: Google Maps + Simulation Step -->
+                    <!-- Top-Right Controls: Google Maps + Sync / Simulation Step -->
                     <div class="absolute top-3 right-3 z-[400] flex items-center gap-1.5 flex-wrap justify-end">
                         <button type="button" onclick="openRouteInGoogleMaps('tracking')" class="bg-white/95 hover:bg-emerald-600 hover:text-white text-emerald-700 border border-emerald-300 text-[11px] font-bold px-2.5 py-1.5 rounded-xl shadow transition flex items-center gap-1.5">
                             <i class="fa-solid fa-diamond-turn-right"></i> Google Maps
                         </button>
-                        <button onclick="advanceOrderStep()" id="btn-next-step" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-xl shadow transition">
+                        <button type="button" onclick="handleTrackingActionButton()" id="btn-next-step" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-xl shadow transition">
                             Majukan Status <i class="fa-solid fa-forward-step ml-1"></i>
                         </button>
                     </div>
@@ -878,7 +882,7 @@
                     <div class="md:col-span-5 bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
                         <div class="flex items-center gap-3">
                             <div class="w-11 h-11 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg shrink-0">
-                                <i class="fa-solid fa-user-helmet-safety"></i>
+                                <i class="fa-solid fa-user-tie"></i>
                             </div>
                             <div class="min-w-0">
                                 <h4 class="font-extrabold text-sm text-slate-800 truncate" id="track-driver-name">Menunggu Driver...</h4>
@@ -893,7 +897,7 @@
                             <button type="button" onclick="openRouteInGoogleMaps('tracking')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 rounded-xl transition flex items-center justify-center gap-1.5">
                                 <i class="fa-solid fa-map-location-dot"></i> Navigasi Maps
                             </button>
-                            <button onclick="cancelActiveOrder()" id="btn-cancel-order" class="flex-1 border border-rose-300 text-rose-600 hover:bg-rose-50 font-bold text-xs py-2 rounded-xl transition">
+                            <button type="button" onclick="cancelActiveOrder()" id="btn-cancel-order" class="flex-1 border border-rose-300 text-rose-600 hover:bg-rose-50 font-bold text-xs py-2 rounded-xl transition">
                                 Batalkan
                             </button>
                         </div>
@@ -909,7 +913,7 @@
                         </div>
                         <div class="mt-2 flex gap-2">
                             <input type="text" id="driver-chat-input" onkeydown="if(event.key==='Enter') sendDriverChat()" placeholder="Ketik pesan ke driver..." class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500">
-                            <button onclick="sendDriverChat()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition">
+                            <button type="button" onclick="sendDriverChat()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition">
                                 <i class="fa-solid fa-paper-plane"></i>
                             </button>
                         </div>
@@ -924,12 +928,12 @@
         <div class="bg-white rounded-3xl w-full max-w-md p-5 space-y-4 shadow-2xl">
             <div class="flex items-center justify-between">
                 <h3 class="font-extrabold text-base text-slate-800">Top Up <span data-service-prefix>Nusa</span>Pay</h3>
-                <button onclick="closeModal('modal-topup')" class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+                <button type="button" onclick="closeModal('modal-topup')" class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="grid grid-cols-3 gap-2">
-                <button onclick="setTopUpAmount(50000)" class="border border-slate-200 hover:border-emerald-500 rounded-xl py-2.5 text-xs font-bold text-slate-700">Rp 50.000</button>
-                <button onclick="setTopUpAmount(100000)" class="border border-slate-200 hover:border-emerald-500 rounded-xl py-2.5 text-xs font-bold text-slate-700">Rp 100.000</button>
-                <button onclick="setTopUpAmount(250000)" class="border border-slate-200 hover:border-emerald-500 rounded-xl py-2.5 text-xs font-bold text-slate-700">Rp 250.000</button>
+                <button type="button" onclick="setTopUpAmount(50000)" class="border border-slate-200 hover:border-emerald-500 rounded-xl py-2.5 text-xs font-bold text-slate-700">Rp 50.000</button>
+                <button type="button" onclick="setTopUpAmount(100000)" class="border border-slate-200 hover:border-emerald-500 rounded-xl py-2.5 text-xs font-bold text-slate-700">Rp 100.000</button>
+                <button type="button" onclick="setTopUpAmount(250000)" class="border border-slate-200 hover:border-emerald-500 rounded-xl py-2.5 text-xs font-bold text-slate-700">Rp 250.000</button>
             </div>
             <div>
                 <label class="text-xs font-bold text-slate-600 block mb-1">Nominal Lainnya (Rp)</label>
@@ -944,7 +948,7 @@
                     <option value="QRIS Instant">QRIS Instant</option>
                 </select>
             </div>
-            <button onclick="confirmTopUp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 rounded-xl text-sm shadow transition">
+            <button type="button" onclick="confirmTopUp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 rounded-xl text-sm shadow transition">
                 Konfirmasi Top Up
             </button>
         </div>
@@ -955,7 +959,7 @@
         <div class="bg-white rounded-3xl w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden shadow-2xl">
             <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
                 <h3 class="font-extrabold text-base text-slate-800">Riwayat Transaksi Dompet</h3>
-                <button onclick="closeModal('modal-wallet-history')" class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+                <button type="button" onclick="closeModal('modal-wallet-history')" class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div id="wallet-transactions-list" class="p-4 overflow-y-auto space-y-2.5">
                 <!-- Rendered via JS -->
@@ -973,8 +977,8 @@
             </div>
             <textarea id="rating-review-input" rows="3" placeholder="Tulis ulasan singkat Anda (opsional)..." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs focus:outline-none focus:border-emerald-500"></textarea>
             <div class="flex gap-2">
-                <button onclick="closeModal('modal-rating')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs">Nanti Saja</button>
-                <button onclick="submitOrderRating()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs">Kirim Rating</button>
+                <button type="button" onclick="closeModal('modal-rating')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs">Nanti Saja</button>
+                <button type="button" onclick="submitOrderRating()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs">Kirim Rating</button>
             </div>
         </div>
     </div>
@@ -988,17 +992,17 @@
                     <h3 class="font-extrabold text-base flex items-center gap-2"><i class="fa-solid fa-sliders text-emerald-400"></i> Panel Admin & Integrasi</h3>
                     <p class="text-[11px] text-slate-300">Kustomisasi merek aplikasi, koneksi Google Spreadsheet, & Google Maps</p>
                 </div>
-                <button onclick="closeModal('modal-admin')" class="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center">
+                <button type="button" onclick="closeModal('modal-admin')" class="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
             <!-- Tabs -->
             <div class="px-5 pt-3 border-b border-slate-200 flex gap-2 bg-slate-50">
-                <button onclick="switchAdminTab('branding')" id="admin-tab-btn-branding" class="bg-white text-slate-900 border border-b-0 border-slate-200 font-bold text-xs px-4 py-2.5 rounded-t-xl">
+                <button type="button" onclick="switchAdminTab('branding')" id="admin-tab-btn-branding" class="bg-white text-slate-900 border border-b-0 border-slate-200 font-bold text-xs px-4 py-2.5 rounded-t-xl">
                     <i class="fa-solid fa-palette mr-1.5 text-emerald-600"></i> Branding & Tampilan
                 </button>
-                <button onclick="switchAdminTab('database')" id="admin-tab-btn-database" class="text-slate-600 hover:text-slate-900 font-semibold text-xs px-4 py-2.5 rounded-t-xl">
+                <button type="button" onclick="switchAdminTab('database')" id="admin-tab-btn-database" class="text-slate-600 hover:text-slate-900 font-semibold text-xs px-4 py-2.5 rounded-t-xl">
                     <i class="fa-solid fa-table mr-1.5 text-emerald-600"></i> Database & Google Maps
                 </button>
             </div>
@@ -1048,10 +1052,10 @@
                     </div>
 
                     <div class="flex gap-2 pt-2">
-                        <button onclick="saveAdminConfig()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs shadow transition">
+                        <button type="button" onclick="saveAdminConfig()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs shadow transition">
                             <i class="fa-solid fa-check mr-1"></i> Terapkan Perubahan
                         </button>
-                        <button onclick="resetAdminConfig()" class="px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition">
+                        <button type="button" onclick="resetAdminConfig()" class="px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition">
                             Reset Default
                         </button>
                     </div>
@@ -1087,13 +1091,13 @@
                         <p class="text-xs text-slate-600">Tempel URL Web App hasil Deploy dari file <code>Code.gs</code> &amp; <code>setup.gs</code> agar pesanan, koordinat GPS, chat driver, dan profil pelanggan tersimpan otomatis ke Google Spreadsheet.</p>
                         <input type="url" id="admin-spreadsheet-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-mono text-slate-800 focus:outline-none focus:border-emerald-500">
                         <div class="flex flex-wrap gap-2">
-                            <button onclick="saveAdminConfig()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
+                            <button type="button" onclick="saveAdminConfig()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
                                 <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan URL
                             </button>
-                            <button onclick="testSpreadsheetConnection()" class="bg-white hover:bg-emerald-100 text-emerald-700 border border-emerald-300 text-xs font-bold px-4 py-2 rounded-xl transition">
+                            <button type="button" onclick="testSpreadsheetConnection()" class="bg-white hover:bg-emerald-100 text-emerald-700 border border-emerald-300 text-xs font-bold px-4 py-2 rounded-xl transition">
                                 <i class="fa-solid fa-plug-circle-check mr-1"></i> Tes Koneksi
                             </button>
-                            <button onclick="syncCustomerToSpreadsheet('Sinkronisasi Manual Admin')" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
+                            <button type="button" onclick="syncCustomerToSpreadsheet('Sinkronisasi Manual Admin')" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
                                 <i class="fa-solid fa-rotate mr-1"></i> Sinkronkan Profil
                             </button>
                         </div>
@@ -1116,6 +1120,12 @@
 
     <!-- ==================== MAIN JAVASCRIPT ==================== -->
     <script>
+        // --- URL WEB APP GOOGLE APPS SCRIPT DEFAULT (OPSIONAL) ---
+        // Tempel URL Web App (.../exec) Anda di bawah ini agar SEMUA HP pelanggan
+        // langsung terhubung ke server Spreadsheet yang sama dengan Aplikasi Driver
+        // tanpa harus mengisi manual lewat Panel Admin.
+        const DEFAULT_SPREADSHEET_URL = '';
+
         // --- DEFAULT LOCATION & LANDMARKS (TOBELO, HALMAHERA UTARA) ---
         const DEFAULT_CENTER = { lat: 1.7321, lng: 128.0061, label: 'Pusat Kota Tobelo, Halmahera Utara' };
 
@@ -1126,6 +1136,13 @@
             { name: 'Kantor Bupati Halmahera Utara', lat: 1.7438, lng: 127.9977, area: 'Kawasan Pemerintahan, Tobelo' },
             { name: 'Hibualamo Tobelo', lat: 1.7352, lng: 128.0038, area: 'Alun-alun Tobelo' },
             { name: 'Bandara Kuabang Kao', lat: 1.2017, lng: 127.8936, area: 'Kao, Halmahera Utara' }
+        ];
+
+        const trackingSteps = [
+            { key: 'MENCARI_DRIVER', label: 'Mencari Driver', desc: 'Menghubungkan pesanan Anda ke Mitra Driver terdekat...', progress: 0.0 },
+            { key: 'MENUJU_JEMPUT', label: 'Menuju Jemput', desc: 'Mitra Driver sedang meluncur menuju titik penjemputan.', progress: 0.28 },
+            { key: 'DALAM_PERJALANAN', label: 'Dalam Perjalanan', desc: 'Anda sedang diantar menuju lokasi tujuan.', progress: 0.68 },
+            { key: 'SELESAI', label: 'Selesai', desc: 'Anda telah tiba di lokasi tujuan dengan selamat!', progress: 1.0 }
         ];
 
         const RESTAURANTS = [
@@ -1233,9 +1250,10 @@
                 appBadge: 'SuperApp',
                 logoIcon: 'fa-bolt',
                 logoUrl: '',
-                spreadsheetUrl: '',
+                spreadsheetUrl: DEFAULT_SPREADSHEET_URL,
                 googleMapsApiKey: ''
             },
+            onlineDriversCount: 0,
             syncLogs: [],
             user: {
                 name: 'Budi Santoso',
@@ -1257,19 +1275,29 @@
             transportComputedPrice: 12000,
             activeRestoId: 'resto-1',
             foodCart: {},
-            sendComputedPrice: 16000,
+            sendComputedPrice: 17000,
             activeOrder: null,
             ordersHistory: [],
             trackingTimer: null,
             orderPollTimer: null,
             ratingTargetOrderId: null,
             selectedRatingStars: 5,
-            cancelConfirmPending: false
+            cancelConfirmPending: false,
+            isSubmittingOrder: false
         };
 
         // --- UTILITIES ---
         function formatRupiah(num) {
             return 'Rp ' + Number(num || 0).toLocaleString('id-ID');
+        }
+
+        function escapeHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
 
         function showToast(message, type = 'success') {
@@ -1287,7 +1315,7 @@
             };
             const el = document.createElement('div');
             el.className = `${colors[type] || colors.info} px-4 py-3 rounded-2xl shadow-xl text-xs font-semibold flex items-center gap-2.5 fade-in pointer-events-auto`;
-            el.innerHTML = `<i class="fa-solid ${icons[type] || icons.info} text-sm shrink-0"></i><span>${message}</span>`;
+            el.innerHTML = `<i class="fa-solid ${icons[type] || icons.info} text-sm shrink-0"></i><span>${escapeHtml(message)}</span>`;
             container.appendChild(el);
             setTimeout(() => {
                 el.style.opacity = '0';
@@ -1297,6 +1325,16 @@
         }
 
         function copyTextFallback(text) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast(`Kode "${text}" berhasil disalin!`);
+                }).catch(() => legacyCopy(text));
+            } else {
+                legacyCopy(text);
+            }
+        }
+
+        function legacyCopy(text) {
             const ta = document.createElement('textarea');
             ta.value = text;
             ta.style.position = 'fixed';
@@ -1328,6 +1366,7 @@
                     walletBalance: state.walletBalance,
                     walletTransactions: state.walletTransactions.slice(0, 30),
                     savedAddresses: state.savedAddresses,
+                    activeOrder: state.activeOrder,
                     ordersHistory: state.ordersHistory.slice(0, 25),
                     syncLogs: state.syncLogs.slice(0, 20)
                 };
@@ -1342,12 +1381,21 @@
                 const raw = localStorage.getItem('gonusa_superapp_state_v2');
                 if (!raw) return;
                 const saved = JSON.parse(raw);
-                if (saved.adminConfig) state.adminConfig = { ...state.adminConfig, ...saved.adminConfig };
+                if (saved.adminConfig) {
+                    state.adminConfig = { ...state.adminConfig, ...saved.adminConfig };
+                    if (!state.adminConfig.spreadsheetUrl && DEFAULT_SPREADSHEET_URL) {
+                        state.adminConfig.spreadsheetUrl = DEFAULT_SPREADSHEET_URL;
+                    }
+                }
                 if (saved.user) state.user = { ...state.user, ...saved.user };
                 if (typeof saved.walletBalance === 'number') state.walletBalance = saved.walletBalance;
                 if (Array.isArray(saved.walletTransactions)) state.walletTransactions = saved.walletTransactions;
                 if (Array.isArray(saved.savedAddresses) && saved.savedAddresses.length) state.savedAddresses = saved.savedAddresses;
                 if (Array.isArray(saved.ordersHistory)) state.ordersHistory = saved.ordersHistory;
+                if (saved.activeOrder && saved.activeOrder.status === 'active') {
+                    const matchedHistory = state.ordersHistory.find(o => o.id === saved.activeOrder.id);
+                    state.activeOrder = matchedHistory || saved.activeOrder;
+                }
                 if (Array.isArray(saved.syncLogs)) state.syncLogs = saved.syncLogs;
             } catch (e) {
                 // Gunakan default state
@@ -1367,7 +1415,6 @@
             const target = document.getElementById(`view-${tabName}`);
             if (target) target.classList.remove('hidden');
 
-            // Update desktop & mobile nav styles
             ['home', 'promos', 'orders', 'profile'].forEach(t => {
                 const dBtn = document.getElementById(`nav-desk-${t}`);
                 const mBtn = document.getElementById(`nav-mob-${t}`);
@@ -1401,6 +1448,7 @@
                     initOrRefreshTransportMap();
                     startRealtimeGPS(!mapState.userGps);
                     updateRealRouteAndPrice();
+                    refreshOnlineDrivers(false);
                 }, 140);
             } else if (serviceType === 'food') {
                 document.getElementById('view-food').classList.remove('hidden');
@@ -1411,6 +1459,9 @@
                 document.getElementById('view-send').classList.remove('hidden');
                 populateAddressSelects();
                 calculateSendPrice();
+            } else {
+                switchTab('home');
+                return;
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -1487,9 +1538,9 @@
             const url = document.getElementById('admin-logo-url').value.trim();
             const icon = document.getElementById('admin-logo-icon').value || 'fa-bolt';
             if (url) {
-                preview.innerHTML = `<img src="${url}" alt="Preview" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<i class=\\'fa-solid ${icon}\\'></i>'">`;
+                preview.innerHTML = `<img src="${escapeHtml(url)}" alt="Preview" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<i class=\\'fa-solid ${escapeHtml(icon)}\\'></i>'">`;
             } else {
-                preview.innerHTML = `<i class="fa-solid ${icon}"></i>`;
+                preview.innerHTML = `<i class="fa-solid ${escapeHtml(icon)}"></i>`;
             }
         }
 
@@ -1523,6 +1574,10 @@
                 resetMapCanvasesForEngineSwitch();
             }
 
+            if (spreadsheetUrl) {
+                refreshOnlineDrivers(false);
+            }
+
             showToast(`Pengaturan Admin (${appName}) berhasil diterapkan!`);
         }
 
@@ -1545,7 +1600,7 @@
         function updateDbConnectionBadge() {
             const badge = document.getElementById('db-connection-badge');
             const statusText = document.getElementById('profile-sync-status');
-            if (state.adminConfig.spreadsheetUrl) {
+            if ((state.adminConfig.spreadsheetUrl || '').trim()) {
                 if (badge) {
                     badge.textContent = 'Terhubung ke Spreadsheet';
                     badge.className = 'text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800';
@@ -1592,10 +1647,60 @@
                 el.innerHTML = '<p class="text-slate-400">Belum ada log sinkronisasi.</p>';
                 return;
             }
-            el.innerHTML = state.syncLogs.map(line => `<div class="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5">${line}</div>`).join('');
+            el.innerHTML = state.syncLogs.map(line => `<div class="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5">${escapeHtml(line)}</div>`).join('');
         }
 
-        // --- GOOGLE SPREADSHEET API SYNC ---
+        // --- GOOGLE SPREADSHEET API SYNC (SINKRON DENGAN APLIKASI DRIVER) ---
+        async function refreshOnlineDrivers(showFeedback = false) {
+            const url = (state.adminConfig.spreadsheetUrl || '').trim();
+            const badge = document.getElementById('driver-online-badge');
+            const dot = document.getElementById('driver-online-dot');
+            const text = document.getElementById('driver-online-text');
+
+            if (!url) {
+                state.onlineDriversCount = 0;
+                if (badge) badge.className = 'inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition';
+                if (dot) dot.className = 'w-2 h-2 rounded-full bg-amber-500';
+                if (text) text.textContent = 'Mode Lokal (Atur URL Admin)';
+                if (showFeedback) {
+                    showToast('URL Google Spreadsheet belum diisi di Panel Admin. Aplikasi berjalan di Mode Simulasi Lokal.', 'info');
+                }
+                return 0;
+            }
+
+            try {
+                const res = await fetch(`${url}?action=get_drivers&_t=${Date.now()}`, { cache: 'no-store' });
+                const json = await res.json();
+                const list = (json && (json.drivers || json.data)) || [];
+                const onlineList = list.filter(d => {
+                    const st = (d.status || '').toString().trim().toUpperCase();
+                    return st === 'ONLINE' || st === 'AKTIF';
+                });
+                const count = typeof json.onlineCount === 'number' ? json.onlineCount : onlineList.length;
+                state.onlineDriversCount = count;
+
+                if (count > 0) {
+                    if (badge) badge.className = 'inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition';
+                    if (dot) dot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-ping';
+                    if (text) text.textContent = `${count} Driver Online`;
+                    if (showFeedback) showToast(`Tersedia ${count} Mitra Driver sedang Online di radar!`, 'success');
+                } else {
+                    if (badge) badge.className = 'inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition';
+                    if (dot) dot.className = 'w-2 h-2 rounded-full bg-rose-500';
+                    if (text) text.textContent = '0 Driver Online';
+                    if (showFeedback) showToast('Server terhubung, tetapi belum ada Mitra Driver berstatus ONLINE saat ini.', 'info');
+                }
+                return count;
+            } catch (err) {
+                if (badge) badge.className = 'inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200';
+                if (dot) dot.className = 'w-2 h-2 rounded-full bg-rose-500';
+                if (text) text.textContent = 'Server Gagal Terhubung';
+                addSyncLog(`Gagal cek driver online: ${err.message}`);
+                if (showFeedback) showToast('Gagal membaca status driver dari Google Spreadsheet.', 'error');
+                return 0;
+            }
+        }
+
         async function testSpreadsheetConnection() {
             const url = (document.getElementById('admin-spreadsheet-url').value || state.adminConfig.spreadsheetUrl || '').trim();
             if (!url) {
@@ -1607,11 +1712,17 @@
             updateDbConnectionBadge();
             showToast('Menguji koneksi ke Google Spreadsheet...', 'info');
             try {
-                const res = await fetch(`${url}?action=ping`);
-                const text = await res.text();
-                addSyncLog(`Tes koneksi berhasil (${res.status}).`);
-                showToast('Koneksi ke Google Spreadsheet aktif!', 'success');
-                return text;
+                const res = await fetch(`${url}?action=ping&_t=${Date.now()}`, { cache: 'no-store' });
+                const data = await res.json();
+                if (data && data.status === 'success') {
+                    const drvInfo = typeof data.onlineDrivers === 'number' ? ` (${data.onlineDrivers} Driver Online)` : '';
+                    addSyncLog(`Tes koneksi BERHASIL${drvInfo}.`);
+                    showToast(`Koneksi Spreadsheet aktif!${drvInfo}`, 'success');
+                    refreshOnlineDrivers(false);
+                    return data;
+                }
+                addSyncLog(`Respon server tidak valid: ${JSON.stringify(data)}`);
+                showToast('URL merespon, tetapi format JSON tidak sesuai. Pastikan sudah Deploy Versi Baru.', 'error');
             } catch (err) {
                 addSyncLog(`Gagal tes koneksi: ${err.message}`);
                 showToast('Gagal menghubungi URL Spreadsheet. Pastikan akses Web App diatur ke "Siapa saja".', 'error');
@@ -1619,7 +1730,7 @@
         }
 
         async function syncCustomerToSpreadsheet(actionNote = 'Update Profil') {
-            const url = state.adminConfig.spreadsheetUrl;
+            const url = (state.adminConfig.spreadsheetUrl || '').trim();
             if (!url) return;
             try {
                 await fetch(url, {
@@ -1641,85 +1752,116 @@
         }
 
         async function sendOrderToSpreadsheet(action, payload) {
-            const url = state.adminConfig.spreadsheetUrl;
-            if (!url) return null;
+            const url = (state.adminConfig.spreadsheetUrl || '').trim();
+            if (!url) return { status: 'local' };
             try {
                 const res = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action, ...payload })
+                    body: JSON.stringify({
+                        action,
+                        id: payload.orderId || payload.id,
+                        ...payload
+                    })
                 });
-                const data = await res.json().catch(() => ({}));
-                addSyncLog(`Action "${action}" terkirim (${payload.orderId || ''}).`);
-                return data;
+                const data = await res.json().catch(() => null);
+                if (data && data.status === 'success') {
+                    addSyncLog(`SUKSES "${action}" (${payload.orderId || ''}).`);
+                    return data;
+                }
+                const errMsg = (data && data.message) ? data.message : `HTTP ${res.status}`;
+                addSyncLog(`GAGAL "${action}": ${errMsg}`);
+                return { status: 'error', message: errMsg };
             } catch (err) {
-                addSyncLog(`Error "${action}": ${err.message}`);
-                return null;
+                addSyncLog(`Error jaringan "${action}": ${err.message}`);
+                return { status: 'error', message: err.message };
+            }
+        }
+
+        async function pollSingleOrderOnce(orderId, showToastOnManual = false) {
+            const url = (state.adminConfig.spreadsheetUrl || '').trim();
+            if (!url || !orderId || !state.activeOrder || state.activeOrder.id !== orderId) return;
+
+            try {
+                const res = await fetch(`${url}?action=get_order&orderId=${encodeURIComponent(orderId)}&_t=${Date.now()}`, {
+                    cache: 'no-store'
+                });
+                const json = await res.json();
+                const remote = json && (json.order || json.data || json);
+                if (!remote || !remote.status) return;
+
+                const statusMap = {
+                    MENCARI_DRIVER: 0,
+                    MENUJU_JEMPUT: 1,
+                    DALAM_PERJALANAN: 2,
+                    SELESAI: 3
+                };
+
+                if (remote.status === 'DIBATALKAN') {
+                    state.activeOrder.status = 'cancelled';
+                    state.activeOrder.statusText = 'Dibatalkan';
+                    clearInterval(state.orderPollTimer);
+                    state.activeOrder = null;
+                    updateActiveOrderBanner();
+                    closeTrackingModal();
+                    renderOrdersHistory();
+                    saveStateToStorage();
+                    showToast('Pesanan dibatalkan.', 'info');
+                    return;
+                }
+
+                const prevDriver = state.activeOrder.driverName;
+                const incomingDriver = (remote.driverName || '').toString().trim();
+                const incomingPlate = (remote.plate || remote.driverPlate || '').toString().trim();
+
+                if (incomingDriver && incomingDriver !== '-') {
+                    state.activeOrder.driverName = incomingDriver;
+                    if (prevDriver === 'Menunggu Mitra Driver...' && incomingDriver !== prevDriver) {
+                        showToast(`Mitra Driver ${incomingDriver} (${incomingPlate || '-'}) menerima pesanan Anda!`, 'success');
+                    }
+                }
+                if (incomingPlate && incomingPlate !== '-') {
+                    state.activeOrder.plate = incomingPlate;
+                }
+                if (Array.isArray(remote.chats) && remote.chats.length) {
+                    state.activeOrder.chats = remote.chats;
+                }
+                if (typeof statusMap[remote.status] === 'number') {
+                    state.activeOrder.stepIndex = statusMap[remote.status];
+                    state.activeOrder.statusText = trackingSteps[state.activeOrder.stepIndex].label;
+                    if (state.activeOrder.stepIndex === 3) {
+                        completeActiveOrder();
+                        return;
+                    }
+                }
+
+                updateActiveOrderBanner();
+                renderTrackingModalUI();
+                renderOrdersHistory();
+                saveStateToStorage();
+                if (showToastOnManual) {
+                    showToast(`Status terbaru: ${state.activeOrder.statusText}`, 'info');
+                }
+            } catch (e) {
+                if (showToastOnManual) {
+                    showToast('Gagal menyegarkan status dari server.', 'error');
+                }
             }
         }
 
         function startOrderPolling(orderId) {
             clearInterval(state.orderPollTimer);
-            const url = state.adminConfig.spreadsheetUrl;
+            const url = (state.adminConfig.spreadsheetUrl || '').trim();
             if (!url || !orderId) return;
 
-            state.orderPollTimer = setInterval(async () => {
+            pollSingleOrderOnce(orderId, false);
+            state.orderPollTimer = setInterval(() => {
                 if (!state.activeOrder || state.activeOrder.id !== orderId) {
                     clearInterval(state.orderPollTimer);
                     return;
                 }
-                try {
-                    const res = await fetch(`${url}?action=get_order&orderId=${encodeURIComponent(orderId)}`);
-                    const json = await res.json();
-                    const remote = json && (json.order || json.data || json);
-                    if (!remote || !remote.status) return;
-
-                    const statusMap = {
-                        MENCARI_DRIVER: 0,
-                        MENUJU_JEMPUT: 1,
-                        DALAM_PERJALANAN: 2,
-                        SELESAI: 3
-                    };
-
-                    if (remote.status === 'DIBATALKAN') {
-                        state.activeOrder.status = 'cancelled';
-                        state.activeOrder.statusText = 'Dibatalkan';
-                        clearInterval(state.orderPollTimer);
-                        state.activeOrder = null;
-                        updateActiveOrderBanner();
-                        closeTrackingModal();
-                        renderOrdersHistory();
-                        saveStateToStorage();
-                        showToast('Pesanan dibatalkan.', 'info');
-                        return;
-                    }
-
-                    if (remote.driverName && remote.driverName !== '-') {
-                        state.activeOrder.driverName = remote.driverName;
-                    }
-                    if (remote.plate && remote.plate !== '-') {
-                        state.activeOrder.plate = remote.plate;
-                    }
-                    if (Array.isArray(remote.chats) && remote.chats.length) {
-                        state.activeOrder.chats = remote.chats;
-                    }
-                    if (typeof statusMap[remote.status] === 'number') {
-                        state.activeOrder.stepIndex = statusMap[remote.status];
-                        state.activeOrder.statusText = trackingSteps[state.activeOrder.stepIndex].label;
-                        if (state.activeOrder.stepIndex === 3) {
-                            completeActiveOrder();
-                            return;
-                        }
-                    }
-
-                    updateActiveOrderBanner();
-                    renderTrackingModalUI();
-                    renderOrdersHistory();
-                    saveStateToStorage();
-                } catch (e) {
-                    // Abaikan error polling sementara
-                }
-            }, 5000);
+                pollSingleOrderOnce(orderId, false);
+            }, 3500);
         }
 
         // --- REAL-TIME GPS, INTERACTIVE MAP & GOOGLE MAPS HYBRID ENGINE ---
@@ -2159,7 +2301,7 @@
             if (!container) return;
             container.innerHTML = POPULAR_DESTINATIONS.map((p, idx) => `
                 <button type="button" onclick="selectQuickDestination(${idx})" class="text-[11px] font-semibold bg-white hover:bg-rose-50 hover:border-rose-400 hover:text-rose-700 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-full transition flex items-center gap-1">
-                    <i class="fa-solid fa-location-dot text-rose-500 text-[10px]"></i> ${p.name}
+                    <i class="fa-solid fa-location-dot text-rose-500 text-[10px]"></i> ${escapeHtml(p.name)}
                 </button>
             `).join('');
         }
@@ -2355,8 +2497,8 @@
                 <button type="button" onclick="selectPlaceSearchResult('${which}', ${idx})" class="w-full text-left px-3.5 py-2.5 hover:bg-slate-50 flex items-start gap-2.5 transition">
                     <i class="fa-solid fa-location-dot ${which === 'pickup' ? 'text-emerald-600' : 'text-rose-500'} mt-0.5 text-xs shrink-0"></i>
                     <div class="min-w-0">
-                        <p class="text-xs font-bold text-slate-800 truncate">${item.title}</p>
-                        <p class="text-[11px] text-slate-500 truncate">${item.subtitle || ''}</p>
+                        <p class="text-xs font-bold text-slate-800 truncate">${escapeHtml(item.title)}</p>
+                        <p class="text-[11px] text-slate-500 truncate">${escapeHtml(item.subtitle || '')}</p>
                     </div>
                 </button>
             `).join('');
@@ -2551,7 +2693,9 @@
             document.getElementById('transport-final-price').textContent = formatRupiah(finalPrice);
         }
 
-        function submitTransportOrder() {
+        async function submitTransportOrder() {
+            if (state.isSubmittingOrder) return;
+
             const pickupName = (document.getElementById('transport-pickup-input').value || mapState.pickup.label || '').trim();
             const destName = (document.getElementById('transport-destination-input').value || mapState.destination.label || '').trim();
             const customNote = (document.getElementById('transport-custom-note').value || '').trim();
@@ -2568,47 +2712,62 @@
                 return;
             }
 
-            const prefix = state.adminConfig.servicePrefix || 'Nusa';
-            const serviceLabel = state.selectedFleet === 'ride' ? `${prefix}Ride` : (state.selectedFleet === 'car' ? `${prefix}Car` : `${prefix}Car XL`);
-            const iconClass = state.selectedFleet === 'ride' ? 'fa-motorcycle' : 'fa-car-side';
-            const driverInfo = state.selectedFleet === 'ride'
-                ? { name: 'Hendra Wijaya', plate: 'Honda Vario • DG 4821 KZL' }
-                : { name: 'Dimas Prakoso', plate: 'Toyota Avanza • DG 1928 WXY' };
-
-            if (payMethod === 'wallet') {
-                deductWallet(price, `Pembayaran ${serviceLabel} (${destName})`);
+            state.isSubmittingOrder = true;
+            const submitBtn = document.getElementById('btn-submit-transport');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-70');
             }
 
-            const pickupCoords = `${mapState.pickup.lat.toFixed(6)},${mapState.pickup.lng.toFixed(6)}`;
-            const destCoords = `${mapState.destination.lat.toFixed(6)},${mapState.destination.lng.toFixed(6)}`;
-            const googleMapsUrl = buildGoogleMapsDirectionsUrl(
-                mapState.pickup.lat,
-                mapState.pickup.lng,
-                mapState.destination.lat,
-                mapState.destination.lng
-            );
+            try {
+                const prefix = state.adminConfig.servicePrefix || 'Nusa';
+                const serviceLabel = state.selectedFleet === 'ride' ? `${prefix}Ride` : (state.selectedFleet === 'car' ? `${prefix}Car` : `${prefix}Car XL`);
+                const iconClass = state.selectedFleet === 'ride' ? 'fa-motorcycle' : 'fa-car-side';
+                const driverInfo = state.selectedFleet === 'ride'
+                    ? { name: 'Hendra Wijaya', plate: 'Honda Vario • DG 4821 KZL' }
+                    : { name: 'Dimas Prakoso', plate: 'Toyota Avanza • DG 1928 WXY' };
 
-            startLiveOrder({
-                service: serviceLabel,
-                icon: iconClass,
-                route: `${pickupName} → ${destName}${customNote ? ' • Catatan: ' + customNote : ''}`,
-                driverName: driverInfo.name,
-                plate: driverInfo.plate,
-                total: price,
-                paymentMethod: payMethod === 'wallet' ? `${prefix}Pay` : 'Tunai',
-                paidWithWallet: payMethod === 'wallet',
-                pickupLat: mapState.pickup.lat,
-                pickupLng: mapState.pickup.lng,
-                destLat: mapState.destination.lat,
-                destLng: mapState.destination.lng,
-                pickupCoords: pickupCoords,
-                destCoords: destCoords,
-                distanceKm: Number(mapState.distanceKm.toFixed(2)),
-                googleMapsUrl: googleMapsUrl,
-                routeCoords: mapState.routeCoords.length > 1
-                    ? mapState.routeCoords.slice()
-                    : [[mapState.pickup.lat, mapState.pickup.lng], [mapState.destination.lat, mapState.destination.lng]]
-            });
+                if (payMethod === 'wallet') {
+                    deductWallet(price, `Pembayaran ${serviceLabel} (${destName})`);
+                }
+
+                const pickupCoords = `${mapState.pickup.lat.toFixed(6)},${mapState.pickup.lng.toFixed(6)}`;
+                const destCoords = `${mapState.destination.lat.toFixed(6)},${mapState.destination.lng.toFixed(6)}`;
+                const googleMapsUrl = buildGoogleMapsDirectionsUrl(
+                    mapState.pickup.lat,
+                    mapState.pickup.lng,
+                    mapState.destination.lat,
+                    mapState.destination.lng
+                );
+
+                await startLiveOrder({
+                    service: serviceLabel,
+                    icon: iconClass,
+                    route: `${pickupName} → ${destName}${customNote ? ' • Catatan: ' + customNote : ''}`,
+                    driverName: driverInfo.name,
+                    plate: driverInfo.plate,
+                    total: price,
+                    paymentMethod: payMethod === 'wallet' ? `${prefix}Pay` : 'Tunai',
+                    paidWithWallet: payMethod === 'wallet',
+                    pickupLat: mapState.pickup.lat,
+                    pickupLng: mapState.pickup.lng,
+                    destLat: mapState.destination.lat,
+                    destLng: mapState.destination.lng,
+                    pickupCoords: pickupCoords,
+                    destCoords: destCoords,
+                    distanceKm: Number(mapState.distanceKm.toFixed(2)),
+                    googleMapsUrl: googleMapsUrl,
+                    routeCoords: mapState.routeCoords.length > 1
+                        ? mapState.routeCoords.slice()
+                        : [[mapState.pickup.lat, mapState.pickup.lng], [mapState.destination.lat, mapState.destination.lng]]
+                });
+            } finally {
+                state.isSubmittingOrder = false;
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-70');
+                }
+            }
         }
 
         // --- FOOD SERVICE LOGIC ---
@@ -2621,8 +2780,8 @@
                         <i class="fa-solid ${r.icon}"></i>
                     </div>
                     <div class="min-w-0">
-                        <h4 class="font-bold text-xs text-slate-800 truncate">${r.name}</h4>
-                        <p class="text-[11px] text-slate-500 truncate">${r.tag}</p>
+                        <h4 class="font-bold text-xs text-slate-800 truncate">${escapeHtml(r.name)}</h4>
+                        <p class="text-[11px] text-slate-500 truncate">${escapeHtml(r.tag)}</p>
                         <div class="flex items-center gap-2 mt-1 text-[10px] font-bold">
                             <span class="text-amber-500"><i class="fa-solid fa-star"></i> ${r.rating}</span>
                             <span class="text-slate-400">•</span>
@@ -2637,13 +2796,13 @@
             const container = document.getElementById('food-resto-list');
             if (!container) return;
             container.innerHTML = RESTAURANTS.map(r => `
-                <button onclick="openRestoMenu('${r.id}')" class="text-left p-3.5 rounded-2xl border-2 transition ${state.activeRestoId === r.id ? 'border-rose-500 bg-rose-50/40' : 'border-slate-200 bg-white hover:border-slate-300'}">
+                <button type="button" onclick="openRestoMenu('${r.id}')" class="text-left p-3.5 rounded-2xl border-2 transition ${state.activeRestoId === r.id ? 'border-rose-500 bg-rose-50/40' : 'border-slate-200 bg-white hover:border-slate-300'}">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-xl bg-gradient-to-br ${r.color} text-white flex items-center justify-center shrink-0">
                             <i class="fa-solid ${r.icon}"></i>
                         </div>
                         <div class="min-w-0">
-                            <h4 class="font-bold text-xs text-slate-800 truncate">${r.name}</h4>
+                            <h4 class="font-bold text-xs text-slate-800 truncate">${escapeHtml(r.name)}</h4>
                             <p class="text-[11px] text-slate-500">${r.eta} • ★ ${r.rating}</p>
                         </div>
                     </div>
@@ -2663,16 +2822,16 @@
                 return `
                 <div class="bg-white border border-slate-200 rounded-2xl p-3.5 flex items-center justify-between gap-3">
                     <div class="min-w-0">
-                        <h4 class="font-bold text-sm text-slate-800">${item.name}</h4>
-                        <p class="text-xs text-slate-500 mt-0.5">${item.desc}</p>
+                        <h4 class="font-bold text-sm text-slate-800">${escapeHtml(item.name)}</h4>
+                        <p class="text-xs text-slate-500 mt-0.5">${escapeHtml(item.desc)}</p>
                         <p class="font-extrabold text-xs text-rose-600 mt-1">${formatRupiah(item.price)}</p>
                     </div>
                     <div class="flex items-center gap-2 shrink-0">
                         ${qty > 0 ? `
-                            <button onclick="updateFoodCart('${resto.id}','${item.id}',-1)" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold text-slate-700">-</button>
+                            <button type="button" onclick="updateFoodCart('${resto.id}','${item.id}',-1)" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold text-slate-700">-</button>
                             <span class="text-xs font-extrabold w-4 text-center">${qty}</span>
                         ` : ''}
-                        <button onclick="updateFoodCart('${resto.id}','${item.id}',1)" class="px-3 h-7 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold">+</button>
+                        <button type="button" onclick="updateFoodCart('${resto.id}','${item.id}',1)" class="px-3 h-7 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold">+</button>
                     </div>
                 </div>`;
             }).join('');
@@ -2713,7 +2872,7 @@
             const deliveryFee = 10000;
             container.innerHTML = items.map(i => `
                 <div class="flex items-center justify-between text-xs bg-white border border-slate-200 rounded-xl px-3 py-2">
-                    <span class="font-semibold text-slate-700 truncate pr-2">${i.qty}x ${i.name}</span>
+                    <span class="font-semibold text-slate-700 truncate pr-2">${i.qty}x ${escapeHtml(i.name)}</span>
                     <span class="font-bold text-slate-800 shrink-0">${formatRupiah(i.price * i.qty)}</span>
                 </div>
             `).join('');
@@ -2775,6 +2934,7 @@
 
         function submitSendOrder() {
             const recName = document.getElementById('send-recipient-name').value.trim();
+            const recPhone = document.getElementById('send-recipient-phone').value.trim();
             const recAddr = document.getElementById('send-recipient-address').value.trim();
             const note = document.getElementById('send-package-note').value.trim();
             const senderAddr = (document.getElementById('send-sender-address').value || 'Alamat Utama').split('|')[0];
@@ -2795,10 +2955,11 @@
                 deductWallet(total, `Pengiriman ${prefix}Send ke ${recName}`);
             }
 
+            const phoneNote = recPhone ? ` (${recPhone})` : '';
             startLiveOrder({
                 service: `${prefix}Send`,
                 icon: 'fa-box-open',
-                route: `${senderAddr} → ${recAddr} (Penerima: ${recName}${note ? ' • ' + note : ''})`,
+                route: `${senderAddr} → ${recAddr} (Penerima: ${recName}${phoneNote}${note ? ' • ' + note : ''})`,
                 driverName: 'Yusuf Kurniawan',
                 plate: 'Honda Beat • DG 7741 CD',
                 total: total,
@@ -2808,16 +2969,9 @@
             });
         }
 
-        // --- REAL-TIME TRACKING & CHAT ---
-        const trackingSteps = [
-            { step: 0, label: 'Mencari Driver', desc: 'Menghubungkan dengan mitra terdekat...', progress: 0.0 },
-            { step: 1, label: 'Menuju Jemput', desc: 'Mitra pengemudi sedang menuju titik penjemputan', progress: 0.15 },
-            { step: 2, label: 'Dalam Perjalanan', desc: 'Pesanan sedang diantar menuju lokasi tujuan', progress: 0.58 },
-            { step: 3, label: 'Selesai', desc: 'Telah tiba di tujuan dengan selamat!', progress: 1.0 }
-        ];
-
-        function startLiveOrder(orderData) {
-            const hasSpreadsheet = Boolean(state.adminConfig.spreadsheetUrl);
+        // --- LIVE ORDER, TRACKING & REAL-TIME SYNC ---
+        async function startLiveOrder(orderData) {
+            const hasSpreadsheet = Boolean((state.adminConfig.spreadsheetUrl || '').trim());
             const fallbackPickupLat = orderData.pickupLat || mapState.pickup.lat;
             const fallbackPickupLng = orderData.pickupLng || mapState.pickup.lng;
             const fallbackDestLat = orderData.destLat || mapState.destination.lat;
@@ -2848,7 +3002,7 @@
                     {
                         sender: 'driver',
                         text: hasSpreadsheet
-                            ? `Pesanan ${orderData.service} telah dikirim ke radar Mitra Pengemudi. Menunggu driver menerima order...`
+                            ? `Pesanan ${orderData.service} sedang dikirim ke radar Mitra Driver online...`
                             : `Halo Kak ${state.user.name}, pesanan ${orderData.service} sudah masuk ya. Mohon ditunggu!`,
                         time: 'Baru saja'
                     }
@@ -2862,13 +3016,13 @@
 
             updateActiveOrderBanner();
             openTrackingModal();
-            showToast(`Pesanan ${orderData.service} berhasil dibuat!`);
 
             clearTimeout(state.trackingTimer);
             clearInterval(state.orderPollTimer);
 
             if (hasSpreadsheet) {
-                sendOrderToSpreadsheet('create_order', {
+                showToast(`Mengirim pesanan ${orderData.service} ke radar Driver Online...`, 'info');
+                const serverRes = await sendOrderToSpreadsheet('create_order', {
                     orderId: newOrder.id,
                     service: newOrder.service,
                     customerName: state.user.name,
@@ -2881,10 +3035,18 @@
                     distanceKm: newOrder.distanceKm,
                     googleMapsUrl: newOrder.googleMapsUrl
                 });
-                startOrderPolling(newOrder.id);
+
+                if (serverRes && serverRes.status === 'success') {
+                    showToast(`Pesanan #${newOrder.id} terkirim ke Mitra Driver!`, 'success');
+                    startOrderPolling(newOrder.id);
+                } else {
+                    const reason = (serverRes && serverRes.message) ? serverRes.message : 'Server Spreadsheet tidak merespon';
+                    showToast(`Gagal sinkron ke Driver: ${reason}. Cek URL Web App di Panel Admin.`, 'error');
+                }
             } else {
+                showToast(`Pesanan ${orderData.service} dibuat (Mode Simulasi Lokal).`, 'info');
                 state.trackingTimer = setTimeout(() => {
-                    if (state.activeOrder && state.activeOrder.stepIndex === 0) {
+                    if (state.activeOrder && state.activeOrder.id === newOrder.id && state.activeOrder.stepIndex === 0) {
                         advanceOrderStep();
                     }
                 }, 2500);
@@ -3102,7 +3264,26 @@
             document.getElementById('track-route-detail').textContent = ord.route;
             document.getElementById('track-price-detail').textContent = `${formatRupiah(ord.total)} (${ord.paymentMethod})`;
 
+            const stepBtn = document.getElementById('btn-next-step');
+            if (stepBtn) {
+                if ((state.adminConfig.spreadsheetUrl || '').trim()) {
+                    stepBtn.innerHTML = '<i class="fa-solid fa-rotate mr-1"></i> Cek Status Driver';
+                } else {
+                    stepBtn.innerHTML = 'Majukan Status <i class="fa-solid fa-forward-step ml-1"></i>';
+                }
+            }
+
             renderDriverChat();
+        }
+
+        function handleTrackingActionButton() {
+            const ord = state.activeOrder;
+            if (!ord) return;
+            if ((state.adminConfig.spreadsheetUrl || '').trim()) {
+                pollSingleOrderOnce(ord.id, true);
+            } else {
+                advanceOrderStep();
+            }
         }
 
         function advanceOrderStep() {
@@ -3120,7 +3301,7 @@
                     ord.chats.push({ sender: 'driver', text: 'Perjalanan dimulai menuju titik tujuan.', time: 'Baru saja' });
                 }
 
-                if (state.adminConfig.spreadsheetUrl) {
+                if ((state.adminConfig.spreadsheetUrl || '').trim()) {
                     sendOrderToSpreadsheet('update_order_status', { orderId: ord.id, status: statusCodes[ord.stepIndex] });
                 }
 
@@ -3161,7 +3342,6 @@
             if (!ord) return;
             const btn = document.getElementById('btn-cancel-order');
 
-            // 2-step inline confirmation (tanpa window.confirm)
             if (!state.cancelConfirmPending) {
                 state.cancelConfirmPending = true;
                 if (btn) btn.textContent = 'Yakin Batal? Klik Lagi';
@@ -3190,7 +3370,7 @@
                 renderWalletUI();
             }
 
-            if (state.adminConfig.spreadsheetUrl) {
+            if ((state.adminConfig.spreadsheetUrl || '').trim()) {
                 sendOrderToSpreadsheet('update_order_status', { orderId: ord.id, status: 'DIBATALKAN' });
             }
 
@@ -3215,8 +3395,8 @@
                 return `
                 <div class="flex ${isUser ? 'justify-end' : 'justify-start'}">
                     <div class="${isUser ? 'bg-emerald-600 text-white rounded-br-none' : 'bg-slate-100 text-slate-800 rounded-bl-none'} px-3 py-2 rounded-2xl max-w-[85%]">
-                        <p>${c.text}</p>
-                        <p class="text-[9px] mt-0.5 ${isUser ? 'text-emerald-100 text-right' : 'text-slate-400'}">${c.time || ''}</p>
+                        <p>${escapeHtml(c.text)}</p>
+                        <p class="text-[9px] mt-0.5 ${isUser ? 'text-emerald-100 text-right' : 'text-slate-400'}">${escapeHtml(c.time || '')}</p>
                     </div>
                 </div>`;
             }).join('');
@@ -3235,7 +3415,7 @@
             renderDriverChat();
             saveStateToStorage();
 
-            if (state.adminConfig.spreadsheetUrl) {
+            if ((state.adminConfig.spreadsheetUrl || '').trim()) {
                 sendOrderToSpreadsheet('send_chat', { orderId: ord.id, sender: 'user', text });
             } else {
                 setTimeout(() => {
@@ -3313,8 +3493,8 @@
             list.innerHTML = state.walletTransactions.map(t => `
                 <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 flex items-center justify-between gap-3">
                     <div class="min-w-0">
-                        <p class="text-xs font-bold text-slate-800 truncate">${t.title}</p>
-                        <p class="text-[11px] text-slate-500">${t.date} • ${t.method}</p>
+                        <p class="text-xs font-bold text-slate-800 truncate">${escapeHtml(t.title)}</p>
+                        <p class="text-[11px] text-slate-500">${escapeHtml(t.date)} • ${escapeHtml(t.method)}</p>
                     </div>
                     <span class="text-xs font-extrabold shrink-0 ${t.type === 'in' ? 'text-emerald-600' : 'text-rose-600'}">
                         ${t.type === 'in' ? '+' : '-'}${formatRupiah(t.amount)}
@@ -3333,11 +3513,11 @@
             container.innerHTML = PROMOS.map(p => `
                 <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col justify-between gap-3">
                     <div>
-                        <span class="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700">${p.code}</span>
-                        <h3 class="font-extrabold text-sm text-slate-800 mt-2">${p.title}</h3>
-                        <p class="text-xs text-slate-500 mt-1">${p.desc}</p>
+                        <span class="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700">${escapeHtml(p.code)}</span>
+                        <h3 class="font-extrabold text-sm text-slate-800 mt-2">${escapeHtml(p.title)}</h3>
+                        <p class="text-xs text-slate-500 mt-1">${escapeHtml(p.desc)}</p>
                     </div>
-                    <button onclick="copyTextFallback('${p.code}')" class="w-full bg-white hover:bg-emerald-600 hover:text-white text-emerald-700 border border-emerald-300 font-bold text-xs py-2 rounded-xl transition">
+                    <button type="button" onclick="copyTextFallback('${p.code}')" class="w-full bg-white hover:bg-emerald-600 hover:text-white text-emerald-700 border border-emerald-300 font-bold text-xs py-2 rounded-xl transition">
                         <i class="fa-regular fa-copy mr-1"></i> Salin Kode Promo
                     </button>
                 </div>
@@ -3370,29 +3550,29 @@
                         </div>
                         <div class="min-w-0">
                             <div class="flex items-center gap-2 flex-wrap">
-                                <h4 class="font-extrabold text-sm text-slate-800">${o.service}</h4>
-                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${badgeClass}">${o.statusText}</span>
-                                <span class="text-[10px] text-slate-400 font-mono">#${o.id} • ${o.time}</span>
+                                <h4 class="font-extrabold text-sm text-slate-800">${escapeHtml(o.service)}</h4>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${badgeClass}">${escapeHtml(o.statusText)}</span>
+                                <span class="text-[10px] text-slate-400 font-mono">#${escapeHtml(o.id)} • ${escapeHtml(o.time)}</span>
                             </div>
-                            <p class="text-xs font-semibold text-slate-700 mt-1">${o.route}</p>
-                            <p class="text-xs text-slate-500 mt-0.5">Mitra: ${o.driverName} (${o.plate})${o.distanceKm ? ` • ${o.distanceKm} km` : ''}</p>
+                            <p class="text-xs font-semibold text-slate-700 mt-1">${escapeHtml(o.route)}</p>
+                            <p class="text-xs text-slate-500 mt-0.5">Mitra: ${escapeHtml(o.driverName)} (${escapeHtml(o.plate)})${o.distanceKm ? ` • ${o.distanceKm} km` : ''}</p>
                             ${o.googleMapsUrl ? `
-                                <a href="${o.googleMapsUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 hover:underline mt-1">
+                                <a href="${escapeHtml(o.googleMapsUrl)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 hover:underline mt-1">
                                     <i class="fa-solid fa-diamond-turn-right"></i> Buka Rute di Google Maps
                                 </a>
                             ` : ''}
                             ${o.rating ? `
-                                <p class="text-[11px] text-amber-500 font-bold mt-1">${'★'.repeat(o.rating)}${'☆'.repeat(5 - o.rating)} <span class="text-slate-500 font-normal">${o.review || ''}</span></p>
+                                <p class="text-[11px] text-amber-500 font-bold mt-1">${'★'.repeat(o.rating)}${'☆'.repeat(5 - o.rating)} <span class="text-slate-500 font-normal">${escapeHtml(o.review || '')}</span></p>
                             ` : ''}
                         </div>
                     </div>
                     <div class="flex sm:flex-col items-center sm:items-end justify-between gap-2 shrink-0 border-t sm:border-t-0 border-slate-100 pt-2 sm:pt-0">
                         <p class="font-extrabold text-sm text-slate-900">${formatRupiah(o.total)}</p>
                         ${o.status === 'active'
-                            ? `<button onclick="openTrackingModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-xl">Lacak Live</button>`
+                            ? `<button type="button" onclick="openTrackingModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-xl">Lacak Live</button>`
                             : (o.status === 'completed' && !o.rating
-                                ? `<button onclick="openRatingModal('${o.id}')" class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-xl">Beri Rating</button>`
-                                : `<span class="text-[11px] text-slate-400">${o.paymentMethod}</span>`)
+                                ? `<button type="button" onclick="openRatingModal('${o.id}')" class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-xl">Beri Rating</button>`
+                                : `<span class="text-[11px] text-slate-400">${escapeHtml(o.paymentMethod)}</span>`)
                         }
                     </div>
                 </div>`;
@@ -3402,6 +3582,13 @@
         function openRatingModal(orderId) {
             state.ratingTargetOrderId = orderId;
             state.selectedRatingStars = 5;
+            const ord = state.ordersHistory.find(o => o.id === orderId);
+            const lbl = document.getElementById('rating-order-label');
+            if (lbl) {
+                lbl.textContent = ord
+                    ? `Bagaimana pelayanan ${ord.driverName} pada pesanan ${ord.service}?`
+                    : 'Bagaimana pelayanan mitra driver?';
+            }
             document.getElementById('rating-review-input').value = '';
             renderRatingStars();
             const modal = document.getElementById('modal-rating');
@@ -3464,11 +3651,11 @@
                 if (!el) return;
                 if (selectId === 'transport-pickup') {
                     el.innerHTML = `<option value="">-- Pilih dari Alamat Tersimpan --</option>` + state.savedAddresses.map(addr =>
-                        `<option value="${addr.id}">${addr.label} - ${addr.detail}</option>`
+                        `<option value="${addr.id}">${escapeHtml(addr.label)} - ${escapeHtml(addr.detail)}</option>`
                     ).join('');
                 } else {
                     el.innerHTML = state.savedAddresses.map(addr =>
-                        `<option value="${addr.label} (${addr.detail})|${addr.distanceBase || 0}">${addr.label} - ${addr.detail}</option>`
+                        `<option value="${escapeHtml(addr.label)} (${escapeHtml(addr.detail)})|${addr.distanceBase || 0}">${escapeHtml(addr.label)} - ${escapeHtml(addr.detail)}</option>`
                     ).join('');
                 }
             });
@@ -3484,11 +3671,11 @@
             list.innerHTML = state.savedAddresses.map(a => `
                 <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between gap-2">
                     <div class="min-w-0">
-                        <p class="text-xs font-bold text-slate-800">${a.label}</p>
-                        <p class="text-[11px] text-slate-500 truncate">${a.detail}</p>
+                        <p class="text-xs font-bold text-slate-800">${escapeHtml(a.label)}</p>
+                        <p class="text-[11px] text-slate-500 truncate">${escapeHtml(a.detail)}</p>
                     </div>
                     ${state.savedAddresses.length > 1 ? `
-                        <button onclick="deleteSavedAddress(${a.id})" class="text-rose-500 hover:text-rose-700 text-xs px-2 py-1">
+                        <button type="button" onclick="deleteSavedAddress(${a.id})" class="text-rose-500 hover:text-rose-700 text-xs px-2 py-1">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     ` : ''}
@@ -3533,9 +3720,15 @@
             renderHomeFoodPreview();
             renderProfileUI();
             renderOrdersHistory();
+            updateActiveOrderBanner();
 
             if (state.adminConfig.googleMapsApiKey) {
                 loadGoogleMapsSdk(state.adminConfig.googleMapsApiKey);
+            }
+
+            // Lanjutkan polling otomatis jika ada pesanan aktif yang belum selesai
+            if (state.activeOrder && (state.adminConfig.spreadsheetUrl || '').trim()) {
+                startOrderPolling(state.activeOrder.id);
             }
 
             // Tutup dropdown autocomplete saat klik di luar area input
@@ -3555,6 +3748,11 @@
                 if (mapState.bookingMap) mapState.bookingMap.invalidateSize();
                 if (mapState.trackingMap) mapState.trackingMap.invalidateSize();
             });
+
+            // Cek status driver online jika URL Spreadsheet sudah diatur
+            if ((state.adminConfig.spreadsheetUrl || '').trim()) {
+                refreshOnlineDrivers(false);
+            }
         };
     </script>
 </body>
