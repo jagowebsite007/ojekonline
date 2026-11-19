@@ -29,7 +29,7 @@ function doGet(e) {
       });
     }
 
-    if (action === 'get_orders' || action === 'orders') {
+    if (action === 'get_orders' || action === 'orders' || action === 'list_orders') {
       var statusFilter = (params.status || '').toString().trim().toUpperCase();
       var allOrders = getAllOrders(statusFilter);
       return createJsonResponse({
@@ -57,7 +57,7 @@ function doGet(e) {
       });
     }
 
-    if (action === 'get_customers') {
+    if (action === 'get_customers' || action === 'list_customers') {
       var customers = getAllCustomers();
       return createJsonResponse({
         status: 'success',
@@ -66,7 +66,7 @@ function doGet(e) {
       });
     }
 
-    if (action === 'get_drivers' || action === 'drivers') {
+    if (action === 'get_drivers' || action === 'drivers' || action === 'list_drivers') {
       var driverStatusFilter = (params.status || '').toString().trim().toUpperCase();
       var drivers = getAllDrivers(driverStatusFilter);
       var onlineCount = countOnlineDrivers(drivers);
@@ -79,7 +79,7 @@ function doGet(e) {
       });
     }
 
-    if (action === 'get_withdrawals') {
+    if (action === 'get_withdrawals' || action === 'list_withdrawals') {
       var driverPhone = (params.driverPhone || params.phone || '').toString().trim();
       var withdrawals = getAllWithdrawals(driverPhone);
       return createJsonResponse({
@@ -394,7 +394,7 @@ function createWithdrawalRecord(withdrawSheet, driverSheet, payload, timestamp) 
     }
   }
 
-  var wdId = 'WD-' + Utilities.formatDate(timestamp, Session.getScriptTimeZone(), 'yyMMdd') + '-' + Math.floor(100 + Math.random() * 900);
+  var wdId = (payload.withdrawId || payload.id || ('WD-' + Utilities.formatDate(timestamp, Session.getScriptTimeZone(), 'yyMMdd') + '-' + Math.floor(100 + Math.random() * 900))).toString().trim();
   withdrawSheet.appendRow([
     wdId,
     timestamp,
@@ -725,6 +725,7 @@ function mapOrderRow(row) {
   var totalVal = Number(row[6] || 0);
   var statusVal = normalizeOrderStatus(row[8]);
   var plateVal = (row[10] || '-').toString().trim();
+  var parsedChats = safeParseChats(row[11]);
 
   return {
     id: row[0].toString().trim(),
@@ -742,7 +743,8 @@ function mapOrderRow(row) {
     driverName: (row[9] || '-').toString().trim(),
     plate: plateVal,
     driverPlate: plateVal,
-    chats: safeParseChats(row[11]),
+    chats: parsedChats,
+    chat: parsedChats,
     pickupCoords: pickupCoords,
     destCoords: destCoords,
     distanceKm: row[14] !== '' && row[14] !== undefined ? Number(row[14]) : null,
@@ -760,7 +762,7 @@ function mapOrderRow(row) {
 function upsertDriverRecord(driverSheet, payload, timestamp) {
   var name = (payload.name || payload.driverName || 'Mitra Driver').toString().trim();
   var phone = cleanTextPhone(payload.phone || payload.driverPhone || '');
-  var vehicle = (payload.vehicle || 'Motor').toString().trim();
+  var vehicle = (payload.vehicle || payload.vehicleType || 'Motor').toString().trim();
   var plate = (payload.plate || payload.driverPlate || '-').toString().trim();
   var workStatus = (payload.status || payload.workStatus || 'ONLINE').toString().trim().toUpperCase();
   var incomingId = (payload.driverId || payload.id || '').toString().trim();
