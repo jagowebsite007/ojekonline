@@ -6,7 +6,7 @@
  *
  * CARA PENGGUNAAN:
  * 1. Buka Google Spreadsheet Anda -> klik menu "Ekstensi" -> "Apps Script".
- * 2. Buat 2 file di editor Apps Script: `kode.gs` dan `setup.gs`.
+ * 2. Buat 2 file di editor Apps Script: `Code.gs` dan `setup.gs`.
  * 3. Jalankan fungsi `setupDatabase()` dari file `setup.gs` ini satu kali
  *    (klik tombol "Jalankan" / "Run" di atas editor).
  * 4. Klik "Terapkan" (Deploy) -> "Deployment baru" -> Jenis: "Aplikasi Web"
@@ -14,63 +14,8 @@
  * 5. Salin URL Web App yang dihasilkan ke Panel Admin di aplikasi web Anda.
  * ============================================================================
  */
-
-var DB_CONFIG = {
-  CUSTOMER_SHEET_NAME: 'Data_Pelanggan',
-  LOG_SHEET_NAME: 'Log_Aktivitas',
-  ORDER_SHEET_NAME: 'Data_Pesanan',
-  DRIVER_SHEET_NAME: 'Data_Driver',
-  WITHDRAW_SHEET_NAME: 'Penarikan_Saldo',
-  HEADER_BG_COLOR: '#059669', // Warna hijau emerald sesuai tema aplikasi
-  HEADER_TEXT_COLOR: '#ffffff'
-};
-
-/**
- * Menambahkan menu khusus di toolbar Google Spreadsheet saat file dibuka
- */
-function onOpen() {
-  var ui = SpreadsheetApp.getUi();
-  ui.createMenu('⚡ Admin Database App')
-    .addItem('1. Jalankan Setup Database Otomatis', 'setupDatabase')
-    .addItem('2. Tambah Contoh Data Pelanggan (Tes)', 'insertSampleCustomer')
-    .addSeparator()
-    .addItem('3. Bersihkan Log Aktivitas', 'clearActivityLogs')
-    .addToUi();
-}
-
-/**
- * FUNGSI UTAMA SETUP DATABASE:
- * Jalankan fungsi ini pertama kali untuk menyiapkan seluruh tabel & kolom.
- */
-function setupDatabase() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-
-  // 1. Setup Sheet Utama: Data_Pelanggan
-  var customerHeaders = [
-    'ID Pelanggan',
-    'Waktu Terdaftar',
-    'Terakhir Diperbarui',
-    'Nama Pengguna',
-    'Alamat',
-    'No WA',
-    'Email',
-    'Aksi Terakhir'
-  ];
-  var customerSheet = createOrFormatSheet(ss, DB_CONFIG.CUSTOMER_SHEET_NAME, customerHeaders, [130, 150, 150, 180, 320, 140, 200, 160]);
-
-  // 2. Setup Sheet Riwayat: Log_Aktivitas
-  var logHeaders = [
-    'Waktu Aktivitas',
-    'ID Pelanggan',
-    'Nama Pengguna',
-    'Alamat',
-    'No WA',
-    'Email',
-    'Aksi'
-  ];
-  createOrFormatSheet(ss, DB_CONFIG.LOG_SHEET_NAME, logHeaders, [150, 130, 180, 320, 140, 200, 160]);
-
-  // 3. Setup Sheet Pesanan Real-Time: Data_Pesanan
+// ... existing code ...
+  // 3. Setup Sheet Pesanan Real-Time: Data_Pesanan (Dilengkapi Koordinat GPS & Link Google Maps)
   var orderHeaders = [
     'ID Order',
     'Waktu Order',
@@ -83,49 +28,21 @@ function setupDatabase() {
     'Status Order',
     'Nama Driver',
     'Plat Kendaraan',
-    'Pesan Chat'
+    'Pesan Chat',
+    'Koordinat Jemput',
+    'Koordinat Tujuan',
+    'Jarak (Km)',
+    'Link Google Maps'
   ];
-  createOrFormatSheet(ss, DB_CONFIG.ORDER_SHEET_NAME, orderHeaders, [120, 150, 110, 160, 140, 320, 120, 110, 160, 160, 160, 260]);
+  createOrFormatSheet(
+    ss,
+    DB_CONFIG.ORDER_SHEET_NAME,
+    orderHeaders,
+    [120, 150, 110, 160, 140, 320, 120, 110, 160, 160, 160, 260, 175, 175, 100, 280]
+  );
 
   // 4. Setup Sheet Mitra Pengemudi: Data_Driver
-  var driverHeaders = [
-    'ID Driver',
-    'Terakhir Aktif',
-    'Nama Driver',
-    'No WA Driver',
-    'Jenis Kendaraan',
-    'Plat Nomor',
-    'Status Kerja',
-    'Total Pendapatan'
-  ];
-  createOrFormatSheet(ss, DB_CONFIG.DRIVER_SHEET_NAME, driverHeaders, [130, 150, 180, 140, 130, 130, 120, 150]);
-
-  // 5. Setup Sheet Penarikan Saldo Driver: Penarikan_Saldo
-  var withdrawHeaders = [
-    'ID Penarikan',
-    'Waktu Pengajuan',
-    'Nama Driver',
-    'No WA Driver',
-    'Bank / E-Wallet',
-    'No Rekening',
-    'Nama Pemilik Rekening',
-    'Nominal Tarik',
-    'Status Transfer'
-  ];
-  createOrFormatSheet(ss, DB_CONFIG.WITHDRAW_SHEET_NAME, withdrawHeaders, [130, 150, 160, 140, 140, 160, 180, 140, 140]);
-
-  // Tambahkan 1 data contoh jika sheet Data_Pelanggan masih kosong
-  if (customerSheet.getLastRow() === 1) {
-    insertSampleCustomer();
-  }
-
-  Logger.log('Setup Database Selesai! Sheet Pelanggan, Log, Pesanan, Driver, dan Penarikan Saldo siap digunakan.');
-}
-
-/**
- * Memastikan sheet database sudah tersedia sebelum doPost / doGet memproses data.
- * Dipanggil secara otomatis oleh kode.gs.
- */
+// ... existing code ...
 function ensureDatabaseReady() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var customerSheet = ss.getSheetByName(DB_CONFIG.CUSTOMER_SHEET_NAME);
@@ -134,90 +51,14 @@ function ensureDatabaseReady() {
   var driverSheet = ss.getSheetByName(DB_CONFIG.DRIVER_SHEET_NAME);
   var withdrawSheet = ss.getSheetByName(DB_CONFIG.WITHDRAW_SHEET_NAME);
 
-  if (!customerSheet || !logSheet || !orderSheet || !driverSheet || !withdrawSheet) {
+  // Pastikan seluruh sheet ada dan kolom GPS pada Data_Pesanan sudah ter-upgrade (16 kolom)
+  var needsOrderUpgrade = orderSheet && orderSheet.getLastColumn() < 16;
+
+  if (!customerSheet || !logSheet || !orderSheet || !driverSheet || !withdrawSheet || needsOrderUpgrade) {
     setupDatabase();
   }
 }
-
-/**
- * Membuat sheet jika belum ada dan mengatur tampilan header secara rapi
- */
-function createOrFormatSheet(ss, sheetName, headers, colWidths) {
-  var sheet = ss.getSheetByName(sheetName);
-  if (!sheet) {
-    sheet = ss.insertSheet(sheetName);
-  }
-
-  // Jika baris pertama belum memiliki header, tuliskan header
-  if (sheet.getLastRow() === 0) {
-    sheet.appendRow(headers);
-  } else {
-    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-  }
-
-  // Styling baris Header
-  var headerRange = sheet.getRange(1, 1, 1, headers.length);
-  headerRange
-    .setBackground(DB_CONFIG.HEADER_BG_COLOR)
-    .setFontColor(DB_CONFIG.HEADER_TEXT_COLOR)
-    .setFontWeight('bold')
-    .setFontFamily('Arial')
-    .setFontSize(10)
-    .setHorizontalAlignment('center')
-    .setVerticalAlignment('middle');
-
-  // Bekukan baris pertama (Freeze Header) & atur tinggi baris header
-  sheet.setFrozenRows(1);
-  sheet.setRowHeight(1, 34);
-
-  // Atur lebar masing-masing kolom agar mudah dibaca
-  if (colWidths && colWidths.length === headers.length) {
-    for (var i = 0; i < colWidths.length; i++) {
-      sheet.setColumnWidth(i + 1, colWidths[i]);
-    }
-  }
-
-  return sheet;
-}
-
-/**
- * Fungsi untuk menguji penyimpanan data pelanggan langsung dari editor Apps Script
- */
-function insertSampleCustomer() {
-  ensureDatabaseReady();
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var customerSheet = ss.getSheetByName(DB_CONFIG.CUSTOMER_SHEET_NAME);
-
-  var sampleData = {
-    timestamp: new Date(),
-    nama: 'Budi Santoso',
-    alamat: 'Jl. Jenderal Sudirman No. 45, Senayan (Rumah: Jl. Jenderal Sudirman No. 45, Senayan)',
-    no_wa: '0812-3456-7890',
-    email: 'budi.santoso@email.com',
-    aksi: 'Data Awal Setup'
-  };
-
-  var res = upsertCustomerRecord(customerSheet, sampleData);
-
-  var logSheet = ss.getSheetByName(DB_CONFIG.LOG_SHEET_NAME);
-  if (logSheet) {
-    logSheet.appendRow([
-      sampleData.timestamp,
-      res.customerId,
-      sampleData.nama,
-      sampleData.alamat,
-      "'" + sampleData.no_wa,
-      sampleData.email,
-      sampleData.aksi
-    ]);
-  }
-
-  Logger.log('Contoh data pelanggan berhasil dimasukkan dengan ID: ' + res.customerId);
-}
-
-/**
- * Menghapus isi riwayat pada sheet Log_Aktivitas (tanpa menghapus data pelanggan utama)
- */
+// ... existing code ...
 function clearActivityLogs() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var logSheet = ss.getSheetByName(DB_CONFIG.LOG_SHEET_NAME);
